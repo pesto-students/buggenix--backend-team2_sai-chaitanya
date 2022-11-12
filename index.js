@@ -8,8 +8,6 @@ import {OktaAuth}  from '@okta/okta-auth-js';
 import axios from 'axios';
 
 const router  = express.Router();
-
-
 const app = express();
 dotenv.config();
 
@@ -22,19 +20,15 @@ dotenv.config();
 //     }
 // };
 
-// app.listen("8800",()=>{
-//     // connect();
-//     console.log("connected to backend.");
-// });
+app.listen("8800",()=>{
+    // connect();
+    console.log("connected to backend.");
+});
 app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
 
-
-// router.get('/',()=>{
-//     console.log("letsgo")
-//     res.status(200).send("good health");
-// });
+// routes
 app.use('/api/auth',authRoute);
 
 app.use((err,req,res,next)=>{

@@ -2,6 +2,8 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { createError } from "../utils/error.js";
+import {OktaAuth}  from '@okta/okta-auth-js';
+import axios from 'axios';
 
 // export const registerUser = async (req,res,next) =>{
 //     try{

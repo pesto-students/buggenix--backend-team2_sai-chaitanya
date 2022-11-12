@@ -4,8 +4,8 @@ import mongoose from "mongoose";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import authRoute from './routes/auth.js'
-import {OktaAuth}  from '@okta/okta-auth-js';
 import axios from 'axios';
+import { oktaAuthRequired } from "./utils/okta/oktaAuthRequired.js"
 
 const router  = express.Router();
 const app = express();
@@ -29,6 +29,10 @@ app.use(cors());
 app.use(express.json());
 
 // routes
+app.get('/api/free',oktaAuthRequired,(req, res) => {
+    console.log("email",req.email);
+    res.sendStatus(200)
+});
 app.use('/api/auth',authRoute);
 
 app.use((err,req,res,next)=>{

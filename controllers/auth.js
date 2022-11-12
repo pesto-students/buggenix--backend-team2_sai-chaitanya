@@ -28,37 +28,35 @@ export const registerUser = async (req,res,next) =>{
         let email = req.body.email;
         let password = req.body.password;
         let data = JSON.stringify({
-        "profile": {
-            "firstName": username,
-            "lastName": "Brock",
-            "email": email,
-            "login": email,
-            "mobilePhone": "555-415-1337"
-        },
-        "credentials": {
-            "password": {
-            "value": password
+            "profile": {
+                "firstName": username,
+                "email": email,
+                "login": email,
+            },
+            "credentials": {
+                "password": {
+                "value": password
+                }
             }
-        }
         });
         
         let  config = {
-        method: 'post',
-        url: 'https://dev-02087076-admin.okta.com/api/v1/users?activate=true',
-        headers: { 
-            'Accept': 'application/json', 
-            'Content-Type': 'application/json', 
-            'Authorization': 'SSWS 00CmsNSFMdflfeUWVbfkX9JWq97JF3IN9qhYwFfRRA'
-        },
-        data : data
+            method: 'post',
+            url: 'https://dev-02087076-admin.okta.com/api/v1/users?activate=true',
+            headers: { 
+                'Accept': 'application/json', 
+                'Content-Type': 'application/json', 
+                'Authorization': 'SSWS 00CmsNSFMdflfeUWVbfkX9JWq97JF3IN9qhYwFfRRA'
+            },
+            data : data
         };
         
         axios(config)
         .then(function (response) {
-        console.log(JSON.stringify(response.data));
+            console.log(JSON.stringify(response.data));
         })
         .catch(function (error) {
-        console.log(error);
+            console.log(error);
         });
         // const newUser =  new User({
         //     username:req.body.username,

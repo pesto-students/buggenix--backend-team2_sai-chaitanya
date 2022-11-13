@@ -80,7 +80,8 @@ export const loginUser = async (req,res,next) =>{
         if(!isPasswordCorrect) return next(createError(400,"Wrong password or username!"));
         console.log("user-login",user);
         const {password, ...otherDetails} = user._doc;
-        const token = jwt.sign({id:user._id},process.env.JWT);
+        // change the expiry of access token
+        const token = jwt.sign({id:user._id},process.env.JWT,{ expiresIn: '1d' });
         const refreshToken = jwt.sign(
             { "id": user._id },
             process.env.REFRESH_TOKEN_SECRET,

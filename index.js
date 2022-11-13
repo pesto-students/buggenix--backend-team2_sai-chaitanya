@@ -5,34 +5,35 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import authRoute from './routes/auth.js'
 import axios from 'axios';
-import { oktaAuthRequired } from "./utils/okta/oktaAuthRequired.js"
+// import { oktaAuthRequired } from "./utils/okta/oktaAuthRequired.js"
 
 const router  = express.Router();
 const app = express();
 dotenv.config();
 
-// const connect = async () => {
-//     try {
-//         await mongoose.connect(process.env.MONGO);
-//         console.log("mongodb connected!");
-//     } catch (error) {
-//         throw error;
-//     }
-// };
+const connect = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO);
+        console.log("mongodb connected!");
+    } catch (error) {
+        throw error;
+    }
+};
 
 app.listen("8800",()=>{
-    // connect();
+    connect();
     console.log("connected to backend.");
 });
+
 app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
 
 // routes
-app.get('/api/free',oktaAuthRequired,(req, res) => {
-    console.log("email",req.email);
-    res.sendStatus(200)
-});
+// app.get('/api/free',oktaAuthRequired,(req, res) => {
+//     console.log("email",req.email);
+//     res.sendStatus(200)
+// });
 app.use('/api/auth',authRoute);
 
 app.use((err,req,res,next)=>{

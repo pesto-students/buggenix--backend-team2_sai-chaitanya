@@ -5,8 +5,10 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import authRoute from './routes/auth.js'
 import axios from 'axios';
+import { corsOptions } from "./config/corsOptions.js";
+import { credentials } from "./utils/credentials.js";
 // import { oktaAuthRequired } from "./utils/okta/oktaAuthRequired.js"
-
+credentials
 const router  = express.Router();
 const app = express();
 dotenv.config();
@@ -25,8 +27,11 @@ app.listen("8800",()=>{
     console.log("connected to backend.");
 });
 
+// and fetch cookies credentials requirement
+app.use(credentials);
+app.use(cors(corsOptions));
+
 app.use(cookieParser());
-app.use(cors());
 app.use(express.json());
 
 // routes

@@ -5,6 +5,7 @@ export const verifyJWT = (req, res, next) => {
     if (!authHeader) return res.sendStatus(401);
     console.log(authHeader); // Bearer token
     const token = authHeader.split(' ')[1];
+    console.log("token",token);
     jwt.verify(
         token,
         process.env.JWT,

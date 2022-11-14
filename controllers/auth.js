@@ -79,7 +79,7 @@ export const loginUser = async (req,res,next) =>{
         if(!isPasswordCorrect) return next(createError(400,"Wrong password or username!"));
         console.log("user-login",user);
         // change the expiry of access token
-        const token = jwt.sign({id:user._id},process.env.JWT,{ expiresIn: '1d' });
+        const token = jwt.sign({id:user._id},process.env.JWT,{ expiresIn: '30s' });
         const refresh_token = jwt.sign(
             { "id": user._id },
             process.env.REFRESH_TOKEN_SECRET,
@@ -90,7 +90,7 @@ export const loginUser = async (req,res,next) =>{
         console.log("91",updatedUser)
         const {password,refreshToken, ...otherDetails} = user._doc;
         res.cookie("refresh_token",refresh_token, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 })
-        .status(200)
+        res.status(200)
         .json({...otherDetails,accessToken:token});
     }catch(error){
         next(error);
@@ -99,6 +99,7 @@ export const loginUser = async (req,res,next) =>{
 
 export const handleRefreshToken = (req, res) => {
     const cookies = req.cookies;
+    console.log("cookies",cookies)
     if (!cookies?.refresh_token) return res.sendStatus(401);
     const refreshToken = cookies.refresh_token;
 
@@ -114,7 +115,7 @@ export const handleRefreshToken = (req, res) => {
             const accessToken = jwt.sign(
                 { "id": decoded.id },
                 process.env.JWT,
-                { expiresIn: '1d' }
+                { expiresIn: '30s' }
             );
             res.json({ accessToken })
         }

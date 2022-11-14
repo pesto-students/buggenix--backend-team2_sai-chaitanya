@@ -5,8 +5,8 @@ const router  = express.Router();
 
 router.post('/register',registerUser);
 router.post('/login',loginUser);
-router.post('/refresh',handleRefreshToken);
-router.post('/check',verifyJWT,(req,res,next)=>{
+router.get('/refresh',handleRefreshToken);
+router.get('/check',verifyJWT,(req,res,next)=>{
     console.log("10",req.userId)
     res.sendStatus(200);
 });

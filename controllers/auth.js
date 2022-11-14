@@ -76,10 +76,10 @@ export const loginUser = async (req,res,next) =>{
         if(!user) return next(createError(404,"User not found!"));
 
         const isPasswordCorrect = await bcrypt.compare(req.body.password,user.password);
-        if(!isPasswordCorrect) return next(createError(400,"Wrong password or username!"));
+        if(!isPasswordCorrect) return next(createError(401,"Wrong password or username!"));
         console.log("user-login",user);
         // change the expiry of access token
-        const token = jwt.sign({id:user._id},process.env.JWT,{ expiresIn: '30s' });
+        const token = jwt.sign({id:user._id},process.env.JWT,{ expiresIn: '1d' });
         const refresh_token = jwt.sign(
             { "id": user._id },
             process.env.REFRESH_TOKEN_SECRET,
@@ -115,9 +115,28 @@ export const handleRefreshToken = (req, res) => {
             const accessToken = jwt.sign(
                 { "id": decoded.id },
                 process.env.JWT,
-                { expiresIn: '30s' }
+                { expiresIn: '1d' }
             );
             res.json({ accessToken })
         }
     );
+}
+
+export const handleLogout = async (req, res) => {
+    // On client, also delete the accessToken
+    const cookies = req.cookies;
+    if (!cookies?.jwt) return res.sendStatus(204); //No content
+    const refreshToken = cookies.refresh_token;
+
+    // Is refreshToken in db?
+    const foundUser = User.findOne({refreshToken:refreshToken});
+    if (!foundUser) {
+        res.clearCookie('refresh_token', { httpOnly: true, sameSite: 'None', secure: true });
+        return res.sendStatus(204);
+    }
+
+    // Delete refreshToken in db
+    const updatedUser = await User.findByIdAndUpdate(foundUser._id ,{refreshToken:''});
+    res.clearCookie('refresh_token', { httpOnly: true, sameSite: 'None', secure: true });
+    res.sendStatus(204);
 }

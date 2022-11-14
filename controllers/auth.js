@@ -139,7 +139,7 @@ export const handleLogout = async (req, res) => {
         return res.sendStatus(204);
     }
     // Delete refreshToken in db
-    const updatedUser = await User.findByIdAndUpdate(foundUser._id ,{refreshToken:'a'});
+    const updatedUser = await User.findByIdAndUpdate(foundUser._id ,{refreshToken:''});
     res.clearCookie('refresh_token', { httpOnly: true, sameSite: 'None', secure: true });
     res.sendStatus(204);
 }

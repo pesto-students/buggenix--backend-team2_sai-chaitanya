@@ -72,12 +72,13 @@ export const registerUser = async (req,res,next) =>{
 
 export const loginUser = async (req,res,next) =>{
     try{
+        // console.log(req.cookies)
         const user = await User.findOne({email:req.body.email});
         if(!user) return next(createError(404,"User not found!"));
 
         const isPasswordCorrect = await bcrypt.compare(req.body.password,user.password);
         if(!isPasswordCorrect) return next(createError(401,"Wrong password or username!"));
-        console.log("user-login",user);
+        // console.log("user-login",user);
         // change the expiry of access token
         const token = jwt.sign({id:user._id},process.env.JWT,{ expiresIn: '1d' });
         const refresh_token = jwt.sign(
@@ -87,7 +88,7 @@ export const loginUser = async (req,res,next) =>{
         );
         // store the refresh token in uers collection for particular user
         const updatedUser = await User.findByIdAndUpdate(user._id ,{refreshToken:refresh_token});
-        console.log("91",updatedUser)
+        // console.log("91",updatedUser)
         const {password,refreshToken, ...otherDetails} = user._doc;
         res.cookie("refresh_token",refresh_token, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 })
         res.status(200)
@@ -97,13 +98,13 @@ export const loginUser = async (req,res,next) =>{
     }
 };
 
-export const handleRefreshToken = (req, res) => {
+export const handleRefreshToken = async (req, res) => {
     const cookies = req.cookies;
     console.log("cookies",cookies)
     if (!cookies?.refresh_token) return res.sendStatus(401);
     const refreshToken = cookies.refresh_token;
 
-    const foundUser = User.findOne({refreshToken:refreshToken});
+    const foundUser = await User.findOne({refreshToken:refreshToken});
     console.log("foundUser");
     if (!foundUser) return res.sendStatus(403); //Forbidden 
     // evaluate jwt 
@@ -125,18 +126,20 @@ export const handleRefreshToken = (req, res) => {
 export const handleLogout = async (req, res) => {
     // On client, also delete the accessToken
     const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(204); //No content
+    console.log("cookies",cookies)
+    if (!cookies?.refresh_token) return res.sendStatus(204); //No content
     const refreshToken = cookies.refresh_token;
 
     // Is refreshToken in db?
-    const foundUser = User.findOne({refreshToken:refreshToken});
+    const foundUser = await User.findOne({refreshToken:refreshToken});
+    console.log(foundUser)
     if (!foundUser) {
         res.clearCookie('refresh_token', { httpOnly: true, sameSite: 'None', secure: true });
+        console.log(res)
         return res.sendStatus(204);
     }
-
     // Delete refreshToken in db
-    const updatedUser = await User.findByIdAndUpdate(foundUser._id ,{refreshToken:''});
+    const updatedUser = await User.findByIdAndUpdate(foundUser._id ,{refreshToken:'a'});
     res.clearCookie('refresh_token', { httpOnly: true, sameSite: 'None', secure: true });
     res.sendStatus(204);
 }

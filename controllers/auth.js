@@ -70,7 +70,6 @@ export const registerUser = async (req,res,next) =>{
 //     }
 // }
 
-
 export const loginUser = async (req,res,next) =>{
     try{
         const user = await User.findOne({email:req.body.email});
@@ -79,18 +78,45 @@ export const loginUser = async (req,res,next) =>{
         const isPasswordCorrect = await bcrypt.compare(req.body.password,user.password);
         if(!isPasswordCorrect) return next(createError(400,"Wrong password or username!"));
         console.log("user-login",user);
-        const {password, ...otherDetails} = user._doc;
         // change the expiry of access token
         const token = jwt.sign({id:user._id},process.env.JWT,{ expiresIn: '1d' });
-        const refreshToken = jwt.sign(
+        const refresh_token = jwt.sign(
             { "id": user._id },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: '1d' }
         );
-        res.cookie("refresh_token",refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 })
+        // store the refresh token in uers collection for particular user
+        const updatedUser = await User.findByIdAndUpdate(user._id ,{refreshToken:refresh_token});
+        console.log("91",updatedUser)
+        const {password,refreshToken, ...otherDetails} = user._doc;
+        res.cookie("refresh_token",refresh_token, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 })
         .status(200)
         .json({...otherDetails,accessToken:token});
     }catch(error){
         next(error);
     }
 };
+
+export const handleRefreshToken = (req, res) => {
+    const cookies = req.cookies;
+    if (!cookies?.refresh_token) return res.sendStatus(401);
+    const refreshToken = cookies.refresh_token;
+
+    const foundUser = User.findOne({refreshToken:refreshToken});
+    console.log("foundUser");
+    if (!foundUser) return res.sendStatus(403); //Forbidden 
+    // evaluate jwt 
+    jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET,
+        (err, decoded) => {
+            if (err || foundUser._id !== decoded._id) return res.sendStatus(403);
+            const accessToken = jwt.sign(
+                { "id": decoded.id },
+                process.env.JWT,
+                { expiresIn: '1d' }
+            );
+            res.json({ accessToken })
+        }
+    );
+}

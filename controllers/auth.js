@@ -163,4 +163,36 @@ export const handleLogout = async (req, res) => {
     res.sendStatus(204);
 }
 
+export const inviteNewTeammember = async (req,res) =>{
+    try{
+        let from = 'buggenixhelpdesk@gmail.com';
+        let to = req.body.to;
+        let subject = "Email invitation";
+        let authUser = process.env.AUTH_USER;
+        let authPass = process.env.AUTH_PASS;
+        let transporter = nodemailer.createTransport({
+            service:'gmail',
+            auth:{
+                user:authUser,
+                pass:authPass
+            }
+        })
+        let redirectedUrl = "https://zesty-sprinkles-e35f24.netlify.app"
+
+        var mailOptions = {
+            from: from,
+            to:to,
+            subject:subject,
+            html:`<p>html code</p> <a href="${redirectedUrl}"><button>create</button></a>`
+        }
+
+        const sentMail = await transporter.sendMail(mailOptions);
+        console.log("sentmail",sentMail);
+        res.status(200)
+        .json({message:"sent successfully"});
+        
+    }catch(err){
+
+    }
+}
 

@@ -4,18 +4,34 @@ import jwt from "jsonwebtoken";
 import { createError } from "../utils/error.js";
 import {OktaAuth}  from '@okta/okta-auth-js';
 import axios from 'axios';
+import nodemailer from 'nodemailer'
+import user from "../models/user.js";
 
 export const registerUser = async (req,res,next) =>{
     try{
+        const {superAdminId} = req.query;
+        let memberUser = {};
+        if(superAdminId){
+            memberUser = {
+                "superAdminId":superAdminId,
+                "role": "member"
+            }
+        }
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(req.body.password, salt);
-        const newUser =  new User({
+        let user = {
+            ...memberUser,
             username:req.body.username,
             email:req.body.email,
             password:hash
-        });
-        await newUser.save();
-        res.status(200).send("user has been created!");
+        }
+        console.log("user",user)
+        const newUser =  new User(user);
+        let responseUser = await newUser.save();
+        // update team field of superAdmin Id
+        console.log(responseUser)
+        const {password , ...otherDetails} = responseUser._doc;
+        res.status(200).json(otherDetails);
     }catch(error){
         next(error)
     }
@@ -78,17 +94,20 @@ export const loginUser = async (req,res,next) =>{
 
         const isPasswordCorrect = await bcrypt.compare(req.body.password,user.password);
         if(!isPasswordCorrect) return next(createError(401,"Wrong password or username!"));
-        // console.log("user-login",user);
         // change the expiry of access token
-        const token = jwt.sign({id:user._id},process.env.JWT,{ expiresIn: '1d' });
+        let signedObj = {
+            "id":user._id,
+            "role":user.role,
+            "superAdminId":user.superAdminId
+        }
+        const token = jwt.sign(signedObj,process.env.JWT,{ expiresIn: '1d' });
         const refresh_token = jwt.sign(
-            { "id": user._id },
+            signedObj,
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: '1d' }
         );
         // store the refresh token in uers collection for particular user
         const updatedUser = await User.findByIdAndUpdate(user._id ,{refreshToken:refresh_token});
-        // console.log("91",updatedUser)
         const {password,refreshToken, ...otherDetails} = user._doc;
         res.cookie("refresh_token",refresh_token, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 })
         res.status(200)
@@ -143,3 +162,5 @@ export const handleLogout = async (req, res) => {
     res.clearCookie('refresh_token', { httpOnly: true, sameSite: 'None', secure: true });
     res.sendStatus(204);
 }
+
+

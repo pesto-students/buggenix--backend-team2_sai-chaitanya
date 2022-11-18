@@ -18,7 +18,6 @@ export const verifyJWT = (req, res, next) => {
                 "userSuperAdminId":decoded.superAdminId
             }
             req.userInfo = userInfo;
-            if(user)
             next();
         }
     );

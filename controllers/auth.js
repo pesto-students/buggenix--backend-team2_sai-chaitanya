@@ -196,3 +196,43 @@ export const inviteNewTeammember = async (req,res) =>{
     }
 }
 
+export const getAllTeamMembers = async(req,res) =>{
+    try{
+        let {userInfo} = req;
+        let superAdminId = userInfo.superAdminId;
+        if(userInfo.role == 'superAdmin'){
+            superAdminId = userInfo.userId
+        }
+        let user = await User.find({
+            "superAdminId":superAdminId
+        });
+        res.status(200).json({team:user});
+    }catch(err){
+        next(err);
+    }
+}
+
+export const deleteTeamMember = async (req,res) =>{
+    try{
+        
+    }catch(err){
+
+    }
+}
+
+export const changeRoleOfUser = async(req,res)=>{
+    try{
+        let {userInfo} = req;
+        let {changedId,changedRole} = req.body;
+        if(userInfo.role == 'superAdmin'){
+            let user = await User.findByIdAndUpdate(changedId,{
+                role:changedRole
+            });
+            res.status(200).json({message:'Changed successfully!'});
+        }else{
+            res.status(403).json({message:'Forbidden'});
+        }
+    }catch(err){
+        next(err);
+    }
+}

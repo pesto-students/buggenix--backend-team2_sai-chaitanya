@@ -40,6 +40,7 @@ export const registerUser = async (req,res,next) =>{
             { expiresIn: '1d' }
         );
         const updatedUser = await User.findByIdAndUpdate(otherDetails._id ,{refreshToken:refresh_token});
+        res.cookie("refresh_token",refresh_token, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 })
         res.status(200).json({...otherDetails,accessToken:token});
     }catch(error){
         next(error)
@@ -57,7 +58,7 @@ export const handleSocialMediaInput = async(req,res,next) =>{
             }
             const user = await User.findByIdAndUpdate(userInfo.userId,{ $push: { socialNetworkHandle: pushedObj } });
             user && res.status(200).json({message:'Social network handle is registered successfully!'});
-            res.status(400).json({message:"User not found!"})
+            !user && res.status(400).json({message:"User not found!"})
         }else{
             res.status(403).json({message:'Forbidden'});
         }
@@ -210,7 +211,7 @@ export const deleteTeamMember = async (req,res) =>{
         if(userInfo.userRole == 'superAdmin'){
             let user = await User.findByIdAndDelete(deleteId);
             user && res.status(200).json({message:'Deleted successfully!'});
-            res.status(400).json({message:"User not found!"})
+            !user && res.status(400).json({message:"User not found!"})
         }else{
             res.status(403).json({message:'Forbidden'});
         }
@@ -228,7 +229,7 @@ export const changeRoleOfUser = async(req,res)=>{
                 role:changedRole
             });
             user && res.status(200).json({message:'Changed successfully!'});
-            res.status(400).json({message:"User not found!"})
+            !user && res.status(400).json({message:"User not found!"})
         }else{
             res.status(403).json({message:'Forbidden'});
         }

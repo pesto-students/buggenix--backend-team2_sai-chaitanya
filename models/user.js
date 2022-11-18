@@ -28,8 +28,8 @@ const UserSchema = new mongoose.Schema(
             type:String,
             required:false
         },
-        socialHandle:{
-            type:[String],
+        socialNetworkHandle:{
+            type:[],
             required:false
         }
     },

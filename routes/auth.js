@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser,handleRefreshToken,handleLogout,inviteNewTeammember,getAllTeamMembers,changeRoleOfUser,deleteTeamMember} from '../controllers/auth.js';
+import { registerUser, loginUser,handleRefreshToken,handleLogout,inviteNewTeammember,getAllTeamMembers,changeRoleOfUser,deleteTeamMember,handleSocialMediaInput} from '../controllers/auth.js';
 import { verifyJWT } from '../utils/jwtVerifier.js';
 const router  = express.Router();
 
@@ -15,6 +15,6 @@ router.get('/inviteTeamMember',verifyJWT,inviteNewTeammember);
 router.get('/changeRoleOfUser',verifyJWT,changeRoleOfUser);
 router.get('/getAllTeamMember',verifyJWT,getAllTeamMembers);
 router.get('/deleteTeamMember',verifyJWT,deleteTeamMember);
-
+router.get('/handleSocialMediaInput',verifyJWT,handleSocialMediaInput)
 
 export default router

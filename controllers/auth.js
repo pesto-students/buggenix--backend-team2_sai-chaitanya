@@ -2,10 +2,7 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { createError } from "../utils/error.js";
-import {OktaAuth}  from '@okta/okta-auth-js';
-import axios from 'axios';
 import nodemailer from 'nodemailer'
-import user from "../models/user.js";
 
 export const registerUser = async (req,res,next) =>{
     try{
@@ -17,8 +14,6 @@ export const registerUser = async (req,res,next) =>{
                 "superAdminId":superAdminId,
                 "role": "member"
             }
-        }else{
-            memberUser['socialHandle'] = [...req.body.handle]
         }
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(req.body.password, salt);
@@ -33,60 +28,37 @@ export const registerUser = async (req,res,next) =>{
         let responseUser = await newUser.save();
         console.log(responseUser)
         const {password , ...otherDetails} = responseUser._doc;
-        res.status(200).json(otherDetails);
+        let signedObj = {
+            "id":otherDetails._id,
+            "role":otherDetails.role,
+            "superAdminId":otherDetails.superAdminId
+        }
+        const token = jwt.sign(signedObj,process.env.JWT,{ expiresIn: '1d' });
+        const refresh_token = jwt.sign(
+            signedObj,
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '1d' }
+        );
+        const updatedUser = await User.findByIdAndUpdate(otherDetails._id ,{refreshToken:refresh_token});
+        res.status(200).json({...otherDetails,accessToken:token});
     }catch(error){
         next(error)
     }
 }
-// export const registerUser = async (req,res,next) =>{
-//     try{
-//         // const salt = bcrypt.genSaltSync(10);
-//         // const hash = bcrypt.hashSync(req.body.password, salt);
-//         let username = req.body.name;
-//         let email = req.body.email;
-//         let password = req.body.password;
-//         let data = JSON.stringify({
-//             "profile": {
-//                 "firstName": username,
-//                 "lastName":"brook",
-//                 "email": email,
-//                 "login": email,
-//             },
-//             "credentials": {
-//                 "password": {
-//                 "value": password
-//                 }
-//             }
-//         });
-        
-//         let  config = {
-//             method: 'post',
-//             url: 'https://dev-02087076-admin.okta.com/api/v1/users?activate=true',
-//             headers: { 
-//                 'Accept': 'application/json', 
-//                 'Content-Type': 'application/json', 
-//                 'Authorization': 'SSWS 00CmsNSFMdflfeUWVbfkX9JWq97JF3IN9qhYwFfRRA'
-//             },
-//             data : data
-//         };
-        
-//         axios(config)
-//         .then(function (response) {
-//             console.log(JSON.stringify(response.data));
-//         })
-//         .catch(function (error) {
-//             console.log(error);
-//         });
-//         // const newUser =  new User({
-//         //     username:req.body.username,
-//         //     email:req.body.email,
-//         // });
-//         // await newUser.save();
-//         res.status(200).send("user has been created!");
-//     }catch(error){
-//         next(error)
-//     }
-// }
+
+export const handleSocialMediaInput = async(req,res,next) =>{
+    try{
+        let {userInfo} = req;
+        if(userInfo.userRole == 'superAdmin'){
+            const user = await User.findByIdAndUpdate(userInfo.userId,{ $push: { socialNetworkHandle: friend } });
+            user && res.status(200).json({message:'Social network handle is registered successfully!'});
+        }else{
+            res.status(403).json({message:'Forbidden'});
+        }
+    }catch(err){
+        next(err)
+    }
+}
 
 export const loginUser = async (req,res,next) =>{
     try{
@@ -174,31 +146,31 @@ export const inviteNewTeammember = async (req,res) =>{
     try{
         let {userInfo} = req;
         if(userInfo.userRole == 'superAdmin'){
-        let from = 'buggenixhelpdesk@gmail.com';
-        let to = req.body.to;
-        let subject = "Email invitation";
-        let authUser = process.env.AUTH_USER;
-        let authPass = process.env.AUTH_PASS;
-        let transporter = nodemailer.createTransport({
-            service:'gmail',
-            auth:{
-                user:authUser,
-                pass:authPass
+            let from = 'buggenixhelpdesk@gmail.com';
+            let to = req.body.to;
+            let subject = "Email invitation";
+            let authUser = process.env.AUTH_USER;
+            let authPass = process.env.AUTH_PASS;
+            let transporter = nodemailer.createTransport({
+                service:'gmail',
+                auth:{
+                    user:authUser,
+                    pass:authPass
+                }
+            })
+            let sId=userInfo.userId;
+            let redirectedUrl = `https://zesty-sprinkles-e35f24.netlify.app/signup/sId=${sId}/email=${to}`;
+
+            let mailOptions = {
+                from: from,
+                to:to,
+                subject:subject,
+                html:`<p>html code</p> <a href="${redirectedUrl}"><button>create</button></a>`
             }
-        })
-        let redirectedUrl = "https://zesty-sprinkles-e35f24.netlify.app/signup"
 
-        var mailOptions = {
-            from: from,
-            to:to,
-            subject:subject,
-            html:`<p>html code</p> <a href="${redirectedUrl}"><button>create</button></a>`
-        }
-
-        const sentMail = await transporter.sendMail(mailOptions);
-        console.log("sentmail",sentMail);
-        res.status(200)
-        .json({message:"sent successfully"});
+            const sentMail = await transporter.sendMail(mailOptions);
+            console.log("sentmail",sentMail);
+            res.status(200).json({message:"sent successfully"});
         }else{
             res.status(403).json({message:'Forbidden'});
         }
@@ -217,7 +189,7 @@ export const getAllTeamMembers = async(req,res) =>{
         }
         let user = await User.find({
             "superAdminId":superAdminId
-        },{password:0});
+        },{password:0,refreshToken:0,socialNetworkHandle:0});
         console.log("219",user)
         res.status(200).json({team:user});
     }catch(err){
@@ -231,12 +203,13 @@ export const deleteTeamMember = async (req,res) =>{
         let {deleteId} = req.body;
         if(userInfo.userRole == 'superAdmin'){
             let user = await User.findByIdAndDelete(deleteId);
-            res.status(200).json({message:'Deleted successfully!'});
+            user && res.status(200).json({message:'Deleted successfully!'});
+            res.status(400).json({message:"User not found!"})
         }else{
             res.status(403).json({message:'Forbidden'});
         }
     }catch(err){
-
+        next(err)
     }
 }
 
@@ -248,7 +221,8 @@ export const changeRoleOfUser = async(req,res)=>{
             let user = await User.findByIdAndUpdate(changedId,{
                 role:changedRole
             });
-            res.status(200).json({message:'Changed successfully!'});
+            user && res.status(200).json({message:'Changed successfully!'});
+            res.status(400).json({message:"User not found!"})
         }else{
             res.status(403).json({message:'Forbidden'});
         }

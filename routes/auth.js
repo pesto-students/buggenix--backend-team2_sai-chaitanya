@@ -11,10 +11,10 @@ router.get('/check',verifyJWT,(req,res,next)=>{
     console.log("10",req.userId)
     res.sendStatus(200);
 });
-router.get('/inviteTeamMember',verifyJWT,inviteNewTeammember);
-router.get('/changeRoleOfUser',verifyJWT,changeRoleOfUser);
+router.post('/inviteTeamMember',verifyJWT,inviteNewTeammember);
+router.post('/changeRoleOfUser',verifyJWT,changeRoleOfUser);
 router.get('/getAllTeamMember',verifyJWT,getAllTeamMembers);
-router.get('/deleteTeamMember',verifyJWT,deleteTeamMember);
-router.get('/handleSocialMediaInput',verifyJWT,handleSocialMediaInput)
+router.post('/deleteTeamMember',verifyJWT,deleteTeamMember);
+router.post('/handleSocialMediaInput',verifyJWT,handleSocialMediaInput)
 
 export default router

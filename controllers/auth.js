@@ -50,8 +50,14 @@ export const handleSocialMediaInput = async(req,res,next) =>{
     try{
         let {userInfo} = req;
         if(userInfo.userRole == 'superAdmin'){
-            const user = await User.findByIdAndUpdate(userInfo.userId,{ $push: { socialNetworkHandle: friend } });
+            let {twitter,facebook} = req.body;
+            let pushedObj = {
+                twitter,
+                facebook
+            }
+            const user = await User.findByIdAndUpdate(userInfo.userId,{ $push: { socialNetworkHandle: pushedObj } });
             user && res.status(200).json({message:'Social network handle is registered successfully!'});
+            res.status(400).json({message:"User not found!"})
         }else{
             res.status(403).json({message:'Forbidden'});
         }

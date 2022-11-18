@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser,handleRefreshToken,handleLogout} from '../controllers/auth.js';
+import { registerUser, loginUser,handleRefreshToken,handleLogout,inviteNewTeammember} from '../controllers/auth.js';
 import { verifyJWT } from '../utils/jwtVerifier.js';
 const router  = express.Router();
 
@@ -11,6 +11,7 @@ router.get('/check',verifyJWT,(req,res,next)=>{
     console.log("10",req.userId)
     res.sendStatus(200);
 });
+router.get('/inviteTeamMember',verifyJWT,inviteNewTeammember);
 
 
 export default router

@@ -12,6 +12,7 @@ export const registerUser = async (req,res,next) =>{
         const {superAdminId} = req.query;
         let memberUser = {};
         if(superAdminId){
+            // check if superAdminId is there in query parameter, if it is there then team member or admin is trying to register
             memberUser = {
                 "superAdminId":superAdminId,
                 "role": "member"
@@ -28,7 +29,6 @@ export const registerUser = async (req,res,next) =>{
         console.log("user",user)
         const newUser =  new User(user);
         let responseUser = await newUser.save();
-        // update team field of superAdmin Id
         console.log(responseUser)
         const {password , ...otherDetails} = responseUser._doc;
         res.status(200).json(otherDetails);
@@ -131,9 +131,14 @@ export const handleRefreshToken = async (req, res) => {
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
         (err, decoded) => {
-            if (err || foundUser._id !== decoded._id) return res.sendStatus(403);
+            if (err || foundUser._id !== decoded.id) return res.sendStatus(403);
+            let signedObj = {
+                "id":decoded.id,
+                "role":decoded.role,
+                "superAdminId":decoded.superAdminId
+            }
             const accessToken = jwt.sign(
-                { "id": decoded.id },
+                signedObj,
                 process.env.JWT,
                 { expiresIn: '1d' }
             );

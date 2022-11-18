@@ -27,6 +27,10 @@ const UserSchema = new mongoose.Schema(
         superAdminId:{
             type:String,
             required:false
+        },
+        socialHandle:{
+            type:[String],
+            required:false
         }
     },
     { timestamps: true }

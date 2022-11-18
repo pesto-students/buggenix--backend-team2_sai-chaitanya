@@ -17,6 +17,8 @@ export const registerUser = async (req,res,next) =>{
                 "superAdminId":superAdminId,
                 "role": "member"
             }
+        }else{
+            memberUser['socialHandle'] = [...req.body.handle]
         }
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(req.body.password, salt);
@@ -184,7 +186,7 @@ export const inviteNewTeammember = async (req,res) =>{
                 pass:authPass
             }
         })
-        let redirectedUrl = "https://zesty-sprinkles-e35f24.netlify.app"
+        let redirectedUrl = "https://zesty-sprinkles-e35f24.netlify.app/signup"
 
         var mailOptions = {
             from: from,

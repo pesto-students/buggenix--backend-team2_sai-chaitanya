@@ -170,6 +170,8 @@ export const handleLogout = async (req, res) => {
 
 export const inviteNewTeammember = async (req,res) =>{
     try{
+        let {userInfo} = req;
+        if(userInfo.userRole == 'superAdmin'){
         let from = 'buggenixhelpdesk@gmail.com';
         let to = req.body.to;
         let subject = "Email invitation";
@@ -195,6 +197,9 @@ export const inviteNewTeammember = async (req,res) =>{
         console.log("sentmail",sentMail);
         res.status(200)
         .json({message:"sent successfully"});
+        }else{
+            res.status(403).json({message:'Forbidden'});
+        }
         
     }catch(err){
 
@@ -204,13 +209,14 @@ export const inviteNewTeammember = async (req,res) =>{
 export const getAllTeamMembers = async(req,res) =>{
     try{
         let {userInfo} = req;
-        let superAdminId = userInfo.superAdminId;
-        if(userInfo.role == 'superAdmin'){
+        let superAdminId = userInfo.userSuperAdminId;
+        if(userInfo.userRole == 'superAdmin'){
             superAdminId = userInfo.userId
         }
         let user = await User.find({
             "superAdminId":superAdminId
-        });
+        },{password:0});
+        console.log("219",user)
         res.status(200).json({team:user});
     }catch(err){
         next(err);
@@ -219,7 +225,14 @@ export const getAllTeamMembers = async(req,res) =>{
 
 export const deleteTeamMember = async (req,res) =>{
     try{
-        
+        let {userInfo} = req;
+        let {deleteId} = req.body;
+        if(userInfo.userRole == 'superAdmin'){
+            let user = await User.findByIdAndDelete(deleteId);
+            res.status(200).json({message:'Deleted successfully!'});
+        }else{
+            res.status(403).json({message:'Forbidden'});
+        }
     }catch(err){
 
     }
@@ -229,7 +242,7 @@ export const changeRoleOfUser = async(req,res)=>{
     try{
         let {userInfo} = req;
         let {changedId,changedRole} = req.body;
-        if(userInfo.role == 'superAdmin'){
+        if(userInfo.userRole == 'superAdmin'){
             let user = await User.findByIdAndUpdate(changedId,{
                 role:changedRole
             });

@@ -16,7 +16,17 @@ const UserSchema = new mongoose.Schema(
             required: true,
         },
         refreshToken: {
-            type:String
+            type:String,
+            required:false
+        },
+        role: {
+            type:String,
+            enum: ['superAdmin','member','admin'],
+            default: 'superAdmin'
+        },
+        superAdminId:{
+            type:String,
+            required:false
         }
     },
     { timestamps: true }

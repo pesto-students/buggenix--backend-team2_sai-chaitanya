@@ -13,6 +13,9 @@ export const verifyJWT = (req, res, next) => {
             if (err) return res.sendStatus(403); //invalid token
             console.log("verified")
             req.userId = decoded.id;
+            req.userRole = decoded.role;
+            req.userSuperAdminId = decoded.superAdminId;
+            if(user)
             next();
         }
     );

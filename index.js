@@ -22,7 +22,7 @@ const connect = async () => {
 };
 connect();
 const port = process.env.PORT || 8800;
-app.listen(PORT,()=>{
+app.listen(port,()=>{
     connect();
     console.log("connected to backend.");
 });

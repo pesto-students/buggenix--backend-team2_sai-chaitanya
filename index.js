@@ -8,7 +8,6 @@ import axios from 'axios';
 import { corsOptions } from "./config/corsOptions.js";
 import { credentials } from "./utils/credentials.js";
 // import { oktaAuthRequired } from "./utils/okta/oktaAuthRequired.js"
-credentials
 const router  = express.Router();
 const app = express();
 dotenv.config();

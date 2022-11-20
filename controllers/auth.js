@@ -7,27 +7,36 @@ import nodemailer from 'nodemailer'
 export const registerUser = async (req,res,next) =>{
     try{
         const {superAdminId} = req.query;
-        let memberUser = {};
-        if(superAdminId){
-            // check if superAdminId is there in query parameter, if it is there then team member or admin is trying to register
-            memberUser = {
-                "superAdminId":superAdminId,
-                "role": "member"
-            }
-        }
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(req.body.password, salt);
         let user = {
-            ...memberUser,
+            // ...memberUser,
             username:req.body.username,
             email:req.body.email,
             password:hash
         }
-        console.log("user",user)
         const newUser =  new User(user);
-        let responseUser = await newUser.save();
+        let responseUser;
+        if(req.body.member){
+            console.log(21)
+            let invitedUser = await User.findOne({email:req.body.email});
+            console.log(invitedUser)
+            if(invitedUser && invitedUser.status=='pending'){
+                responseUser = await User.findByIdAndUpdate(invitedUser._id,{new: true},{
+                    status:"active",
+                    password:req.body.password,
+                    username:req.body.username,
+                });
+            }else{
+                next(createError(404,"User not found!"))
+            }
+        }else{
+            const newUser =  new User(user);
+            responseUser = await newUser.save();
+        }
         console.log(responseUser)
         const {password , ...otherDetails} = responseUser._doc;
+        console.log(otherDetails)
         let signedObj = {
             "id":otherDetails._id,
             "role":otherDetails.role,
@@ -72,7 +81,9 @@ export const loginUser = async (req,res,next) =>{
         // console.log(req.cookies)
         const user = await User.findOne({email:req.body.email});
         if(!user) return next(createError(404,"User not found!"));
-
+        if(user && user.status=='pending'){
+            next(createError(401,"User is not registered yet , please use the signup link sent by the super admin in your mail !"));
+        }
         const isPasswordCorrect = await bcrypt.compare(req.body.password,user.password);
         if(!isPasswordCorrect) return next(createError(401,"Wrong password or username!"));
         // change the expiry of access token
@@ -98,7 +109,7 @@ export const loginUser = async (req,res,next) =>{
     }
 };
 
-export const handleRefreshToken = async (req, res) => {
+export const handleRefreshToken = async (req, res,next) => {
     const cookies = req.cookies;
     console.log("cookies",cookies)
     if (!cookies?.refresh_token) return res.sendStatus(401);
@@ -128,7 +139,7 @@ export const handleRefreshToken = async (req, res) => {
     );
 }
 
-export const handleLogout = async (req, res) => {
+export const handleLogout = async (req, res,next) => {
     // On client, also delete the accessToken
     const cookies = req.cookies;
     console.log("cookies",cookies)
@@ -149,7 +160,7 @@ export const handleLogout = async (req, res) => {
     res.sendStatus(204);
 }
 
-export const inviteNewTeammember = async (req,res) =>{
+export const inviteNewTeammember = async (req,res,next) =>{
     try{
         let {userInfo} = req;
         if(userInfo.userRole == 'superAdmin'){
@@ -166,7 +177,7 @@ export const inviteNewTeammember = async (req,res) =>{
                 }
             })
             let sId=userInfo.userId;
-            let redirectedUrl = `https://zesty-sprinkles-e35f24.netlify.app/signup/sId=${sId}/email=${to}`;
+            let redirectedUrl = `https://zesty-sprinkles-e35f24.netlify.app/signup/email=${to}`;
 
             let mailOptions = {
                 from: from,
@@ -174,20 +185,33 @@ export const inviteNewTeammember = async (req,res) =>{
                 subject:subject,
                 html:`<p>html code</p> <a href="${redirectedUrl}"><button>create</button></a>`
             }
-
             const sentMail = await transporter.sendMail(mailOptions);
+            let responseUser;
+            if(sentMail){
+                let user = {
+                    username:'pending',
+                    email:to,
+                    password:'pending',
+                    status:'pending',
+                    superAdminId:userInfo.userSuperAdminId,
+                    role:'member'
+                }
+                const newUser =  new User(user);
+                responseUser = await newUser.save();
+                responseUser = responseUser._doc
+            }
             console.log("sentmail",sentMail);
-            res.status(200).json({message:"sent successfully"});
+            res.status(200).json({message:"sent successfully",...responseUser});
         }else{
             res.status(403).json({message:'Forbidden'});
         }
         
     }catch(err){
-
+        next(err);
     }
 }
 
-export const getAllTeamMembers = async(req,res) =>{
+export const getAllTeamMembers = async(req,res,next) =>{
     try{
         let {userInfo} = req;
         let superAdminId = userInfo.userSuperAdminId;
@@ -204,7 +228,7 @@ export const getAllTeamMembers = async(req,res) =>{
     }
 }
 
-export const deleteTeamMember = async (req,res) =>{
+export const deleteTeamMember = async (req,res,next) =>{
     try{
         let {userInfo} = req;
         let {deleteId} = req.body;
@@ -220,7 +244,7 @@ export const deleteTeamMember = async (req,res) =>{
     }
 }
 
-export const changeRoleOfUser = async(req,res)=>{
+export const changeRoleOfUser = async(req,res,next)=>{
     try{
         let {userInfo} = req;
         let {changedId,changedRole} = req.body;
@@ -237,3 +261,4 @@ export const changeRoleOfUser = async(req,res)=>{
         next(err);
     }
 }
+

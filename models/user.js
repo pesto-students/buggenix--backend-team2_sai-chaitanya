@@ -31,6 +31,11 @@ const UserSchema = new mongoose.Schema(
         socialNetworkHandle:{
             type:[],
             required:false
+        },
+        status:{
+            type:String,
+            enum: ['pending','active'],
+            default: 'active'
         }
     },
     { timestamps: true }

@@ -42,7 +42,8 @@ export const inviteNewUser = async (req,res,next) =>{
                 responseUser = await newUser.save();
                 responseUser = responseUser._doc
             }
-            res.status(200).json({message:"sent successfully",...responseUser});
+            const {password:pass,username, ...otherDetails} = responseUser;
+            res.status(200).json({message:"sent successfully",...otherDetails});
         }else{
             res.status(403).json({message:'Forbidden'});
         }

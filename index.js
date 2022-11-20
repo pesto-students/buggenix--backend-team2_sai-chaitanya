@@ -31,7 +31,7 @@ app.use(credentials);
 app.use(cors(corsOptions));
 
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json())
 
 // routes
 app.use('/api/auth',authRoute);

@@ -2,7 +2,7 @@ import {User} from "../../models/index.js";
 import { createError } from "../../utils/error.js";
 import nodemailer from 'nodemailer'
 
-export const inviteNewTeammember = async (req,res,next) =>{
+export const inviteNewUser = async (req,res,next) =>{
     try{
         let {userInfo} = req;
         if(userInfo.userRole == 'superAdmin'){
@@ -35,14 +35,13 @@ export const inviteNewTeammember = async (req,res,next) =>{
                     email:to,
                     password:'pending',
                     status:'pending',
-                    superAdminId:userInfo.userSuperAdminId,
+                    superAdminId:userInfo.userId,
                     role:'member'
                 }
                 const newUser =  new User(user);
                 responseUser = await newUser.save();
                 responseUser = responseUser._doc
             }
-            console.log("sentmail",sentMail);
             res.status(200).json({message:"sent successfully",...responseUser});
         }else{
             res.status(403).json({message:'Forbidden'});
@@ -53,7 +52,7 @@ export const inviteNewTeammember = async (req,res,next) =>{
     }
 }
 
-export const getAllTeamMembers = async(req,res,next) =>{
+export const getAllUsers = async(req,res,next) =>{
     try{
         let {userInfo} = req;
         let superAdminId = userInfo.userSuperAdminId;
@@ -69,10 +68,10 @@ export const getAllTeamMembers = async(req,res,next) =>{
     }
 }
 
-export const deleteTeamMember = async (req,res,next) =>{
+export const deleteUser = async (req,res,next) =>{
     try{
         let {userInfo} = req;
-        let {deleteId} = req.body;
+        let {deleteId} = req.query;
         if(userInfo.userRole == 'superAdmin'){
             let user = await User.findByIdAndDelete(deleteId);
             user && res.status(200).json({message:'Deleted successfully!'});

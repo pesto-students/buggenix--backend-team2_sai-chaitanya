@@ -3,8 +3,7 @@ import dotenv from 'dotenv';
 import mongoose from "mongoose";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import {authRoute, teamsRoute} from './routes/index.js'
-import axios from 'axios';
+import {authRoute, usersRoute} from './routes/index.js'
 import { corsOptions } from "./config/corsOptions.js";
 import { credentials } from "./utils/credentials.js";
 
@@ -20,8 +19,8 @@ const connect = async () => {
         throw error;
     }
 };
+
 const port = process.env.PORT || 8800
-console.log(port)
 app.listen(port,()=>{
     connect();
     console.log("connected to backend.");
@@ -36,7 +35,7 @@ app.use(express.json())
 
 // routes
 app.use('/api/auth',authRoute);
-app.use('/api/teams',teamsRoute);
+app.use('/api/users',usersRoute);
 
 app.use((err,req,res,next)=>{
     console.log("errmiddleware",err);

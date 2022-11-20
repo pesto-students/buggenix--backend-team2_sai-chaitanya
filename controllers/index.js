@@ -1,17 +1,17 @@
-import {registerUser,loginUser,handleRefreshToken,handleSocialMediaInput,handleLogout} from './auth/auth.js';
-import {inviteNewTeammember,getAllTeamMembers,deleteTeamMember,changeRoleOfUser} from './teams/teams.js';
+import {registerUser,loginUser,handleRefreshToken,handleSocials,handleLogout} from './auth/auth.js';
+import {inviteNewUser,getAllUsers,deleteUser,changeRoleOfUser} from './users/users.js';
 
 export {
     // auth
     registerUser,
     loginUser,
     handleRefreshToken,
-    handleSocialMediaInput,
+    handleSocials,
     handleLogout,
-    
-    // teams
-    inviteNewTeammember,
-    getAllTeamMembers,
-    deleteTeamMember,
+
+    // users
+    inviteNewUser,
+    getAllUsers,
+    deleteUser,
     changeRoleOfUser
 }

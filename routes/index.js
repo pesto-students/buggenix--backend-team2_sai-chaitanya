@@ -1,7 +1,7 @@
 import authRoute from './auth/auth.js';
-import teamsRoute from './teams/teams.js';
+import usersRoute from './users/users.js';
 
 export {
     authRoute,
-    teamsRoute
+    usersRoute
 }

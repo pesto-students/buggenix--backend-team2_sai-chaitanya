@@ -1,6 +1,7 @@
 import express from 'express';
-import { registerUser, loginUser,handleRefreshToken,handleLogout,inviteNewTeammember,getAllTeamMembers,changeRoleOfUser,deleteTeamMember,handleSocialMediaInput} from '../controllers/auth.js';
-import { verifyJWT } from '../utils/jwtVerifier.js';
+import { registerUser, loginUser,handleRefreshToken,handleLogout,handleSocialMediaInput} from '../../controllers/index.js';
+import { verifyJWT } from '../../utils/jwtVerifier.js';
+
 const router  = express.Router();
 
 router.post('/register',registerUser);
@@ -12,11 +13,6 @@ router.get('/check',verifyJWT,(req,res,next)=>{
     res.sendStatus(200);
 });
 router.post('/handleSocialMediaInput',verifyJWT,handleSocialMediaInput);
-// teams
-router.post('/inviteTeamMember',verifyJWT,inviteNewTeammember);
-router.post('/changeRoleOfUser',verifyJWT,changeRoleOfUser);
-router.get('/getAllTeamMember',verifyJWT,getAllTeamMembers);
-router.post('/deleteTeamMember',verifyJWT,deleteTeamMember);
 // order evrything alphabetically and use index file
 // handlesocialmediainput,getallteammember
 // team api in diffferent folder

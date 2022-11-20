@@ -21,6 +21,7 @@ const connect = async () => {
     }
 };
 const port = process.env.PORT || 8800
+console.log(port)
 app.listen(port,()=>{
     connect();
     console.log("connected to backend.");

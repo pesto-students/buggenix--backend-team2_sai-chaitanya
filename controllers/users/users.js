@@ -19,7 +19,7 @@ export const inviteNewUser = async (req,res,next) =>{
                 }
             })
             let sId=userInfo.userId;
-            let redirectedUrl = `https://rad-cannoli-15e97a.netlify.app/team-invite/`;
+            let redirectedUrl = `https://rad-cannoli-15e97a.netlify.app/team-invite?email=${to}`;
 
             let mailOptions = {
                 from: from,

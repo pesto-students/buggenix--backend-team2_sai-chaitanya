@@ -21,10 +21,11 @@ const connect = async () => {
     }
 };
 connect();
-// app.listen("8800",()=>{
-//     connect();
-//     console.log("connected to backend.");
-// });
+const port = process.env.PORT || 8800;
+app.listen(PORT,()=>{
+    connect();
+    console.log("connected to backend.");
+});
 
 // and fetch cookies credentials requirement
 app.use(credentials);

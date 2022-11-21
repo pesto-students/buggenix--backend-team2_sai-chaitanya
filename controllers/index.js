@@ -1,5 +1,6 @@
 import {registerUser,loginUser,handleRefreshToken,handleSocials,handleLogout} from './auth/auth.js';
 import {inviteNewUser,getAllUsers,deleteUser,changeRoleOfUser} from './users/users.js';
+import {createProject,getProjects} from './project/project.js';
 
 export {
     // auth
@@ -13,5 +14,9 @@ export {
     inviteNewUser,
     getAllUsers,
     deleteUser,
-    changeRoleOfUser
+    changeRoleOfUser,
+
+    // projects
+    createProject,
+    getProjects
 }

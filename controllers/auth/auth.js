@@ -34,7 +34,9 @@ export const registerUser = async (req,res,next) =>{
         let signedObj = {
             id,
             role,
-            superAdminId
+            superAdminId,
+            email,
+            username
         }
         const token = jwt.sign(signedObj,process.env.JWT,{ expiresIn: '1d' });
         const refresh_token = jwt.sign(
@@ -80,11 +82,13 @@ export const loginUser = async (req,res,next) =>{
         }
         const isPasswordCorrect = await bcrypt.compare(password,user.password);
         if(!isPasswordCorrect) return next(createError(401,"Wrong password or username!"));
-        let {_id:id,role,superAdminId} = user;
+        let {_id:id,role,superAdminId,username} = user;
         let signedObj = {
             id,
             role,
-            superAdminId
+            superAdminId,
+            email,
+            username
         }
         // change the expiry of access token
         const token = jwt.sign(signedObj,process.env.JWT,{ expiresIn: '1d' });
@@ -118,11 +122,13 @@ export const handleRefreshToken = async (req, res,next) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
                 if (err || foundUser._id !== decoded.id) return res.sendStatus(403);
-                let {id:id,role,superAdminId} = decoded;
+                let {id:id,role,superAdminId,email,username} = decoded;
                 let signedObj = {
                     id,
                     role,
-                    superAdminId
+                    superAdminId,
+                    email,
+                    username
                 }
                 const accessToken = jwt.sign(
                     signedObj,

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import mongoose from "mongoose";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import {authRoute, usersRoute} from './routes/index.js'
+import {authRoute, usersRoute,projectRoute} from './routes/index.js'
 import { corsOptions } from "./config/corsOptions.js";
 import { credentials } from "./utils/credentials.js";
 
@@ -36,6 +36,7 @@ app.use(express.json())
 // routes
 app.use('/api/auth',authRoute);
 app.use('/api/users',usersRoute);
+app.use('/api/project',projectRoute);
 
 app.use((err,req,res,next)=>{
     console.log("errmiddleware",err);

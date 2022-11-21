@@ -13,7 +13,9 @@ export const verifyJWT = (req, res, next) => {
             let userInfo = {
                 "userId":decoded.id,
                 "userRole":decoded.role,
-                "userSuperAdminId":decoded.superAdminId || ''
+                "userSuperAdminId":decoded.superAdminId || '',
+                "userName":decoded.username,
+                "userEmail":decoded.email
             }
             req.userInfo = userInfo;
             next();

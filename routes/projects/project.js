@@ -1,12 +1,10 @@
-import {createProject,getProjects} from '../../controllers/index.js';
-import express from 'express';
-import { verifyJWT } from '../../utils/jwtVerifier.js';
+import { createProject, getProjects } from "../../controllers/index.js";
+import express from "express";
+import { verifyJWT } from "../../utils/jwtVerifier.js";
 
-const router  = express.Router();
+const router = express.Router();
 
-router.post('/',verifyJWT,createProject);
-router.get('/',verifyJWT,getProjects);
+router.post("/", verifyJWT, createProject);
+router.get("/", verifyJWT, getProjects);
 
-export default router
-
-
+export default router;

@@ -1,6 +1,7 @@
 import { User } from "../models/index.js";
 import nodemailer from "nodemailer";
 import { createError } from "../utils/error.js";
+import mongoose from "mongoose";
 
 export const inviteNewUser = async (req, res, next) => {
   try {
@@ -74,9 +75,11 @@ export const getAllUsers = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
   try {
     const { userInfo } = req;
-    const { deleteId } = req.query;
+    const { id } = req.params;
+    console.log(id)
+    const objId = mongoose.Types.ObjectId(id)
     if (userInfo.userRole == "superAdmin") {
-      const user = await User.findByIdAndDelete(deleteId);
+      const user = await User.findByIdAndDelete(objId);
       user && res.status(200).json({ message: "Deleted successfully!" });
       !user && res.status(400).json({ message: "User not found!" });
     } else {

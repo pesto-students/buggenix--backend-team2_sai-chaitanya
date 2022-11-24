@@ -1,18 +1,18 @@
-import { Project } from "../../models/index.js";
-import { createError } from "../../utils/error.js";
+import { Project } from "../models/index.js";
+import { createError } from "../utils/error.js";
 
 export const createProject = async (req, res, next) => {
   try {
-    let { userInfo } = req;
-    let respProject;
-    let { name, description } = req.body;
+    const { userInfo } = req;
+    let projectResp;
+    const { name, description } = req.body;
     if (userInfo.userRole == "superAdmin") {
-      let {
+      const {
         userName: createrName,
         userEmail: createrEmail,
         userId: superAdminId,
       } = userInfo;
-      let project = {
+      const project = {
         name,
         description,
         superAdminId,
@@ -23,15 +23,15 @@ export const createProject = async (req, res, next) => {
         },
       };
       const newProject = new Project(project);
-      respProject = await newProject.save();
+      projectResp = await newProject.save();
     } else if (userInfo.userRole == "admin") {
-      let {
+      const {
         userName: createrName,
         userEmail: createrEmail,
         userId: createrId,
         userSuperAdminId: superAdminId,
       } = userInfo;
-      let project = {
+      const project = {
         name,
         description,
         superAdminId,
@@ -42,11 +42,11 @@ export const createProject = async (req, res, next) => {
         },
       };
       const newProject = new Project(project);
-      respProject = await newProject.save();
+      projectResp = await newProject.save();
     } else {
       return next(createError(403, "Forbidden"));
     }
-    res.status(200).json({ ...respProject._doc });
+    res.status(200).json({ ...projectResp._doc });
   } catch (err) {
     next(err);
   }
@@ -54,12 +54,17 @@ export const createProject = async (req, res, next) => {
 
 export const getProjects = async (req, res, next) => {
   try {
-    let { userInfo } = req;
-    let { userRole, userSuperAdminId, userId } = userInfo;
-    let superAdminId = userRole == "superAdmin" ? userId : userSuperAdminId;
-    let projects = await Project.find({ superAdminId });
+    const { userInfo } = req;
+    const { userRole, userSuperAdminId, userId } = userInfo;
+    const superAdminId = userRole == "superAdmin" ? userId : userSuperAdminId;
+    const projects = await Project.find({ superAdminId });
     res.status(200).json({ projects });
   } catch (err) {
     next(err);
   }
+};
+
+export const projectController = {
+  getProjects,
+  createProject,
 };

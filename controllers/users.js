@@ -1,17 +1,17 @@
-import { User } from "../../models/index.js";
-import { createError } from "../../utils/error.js";
+import { User } from "../models/index.js";
 import nodemailer from "nodemailer";
+import { createError } from "../utils/error.js";
 
 export const inviteNewUser = async (req, res, next) => {
   try {
-    let { userInfo } = req;
+    const { userInfo } = req;
     if (userInfo.userRole == "superAdmin") {
-      let from = "buggenixhelpdesk@gmail.com";
-      let to = req.body.to;
-      let subject = "Email invitation";
-      let authUser = process.env.AUTH_USER;
-      let authPass = process.env.AUTH_PASS;
-      let transporter = nodemailer.createTransport({
+      const from = "buggenixhelpdesk@gmail.com";
+      const to = req.body.to;
+      const subject = "Email invitation";
+      const authUser = process.env.AUTH_USER;
+      const authPass = process.env.AUTH_PASS;
+      const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
           user: authUser,
@@ -21,7 +21,7 @@ export const inviteNewUser = async (req, res, next) => {
       let sId = userInfo.userId;
       let redirectedUrl = `https://rad-cannoli-15e97a.netlify.app/team-invite?email=${to}`;
 
-      let mailOptions = {
+      const mailOptions = {
         from: from,
         to: to,
         subject: subject,
@@ -54,12 +54,12 @@ export const inviteNewUser = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    let { userInfo } = req;
+    const { userInfo } = req;
     let superAdminId = userInfo.userSuperAdminId;
     if (userInfo.userRole == "superAdmin") {
       superAdminId = userInfo.userId;
     }
-    let user = await User.find(
+    const user = await User.find(
       {
         superAdminId: superAdminId,
       },
@@ -73,10 +73,10 @@ export const getAllUsers = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
-    let { userInfo } = req;
-    let { deleteId } = req.query;
+    const { userInfo } = req;
+    const { deleteId } = req.query;
     if (userInfo.userRole == "superAdmin") {
-      let user = await User.findByIdAndDelete(deleteId);
+      const user = await User.findByIdAndDelete(deleteId);
       user && res.status(200).json({ message: "Deleted successfully!" });
       !user && res.status(400).json({ message: "User not found!" });
     } else {
@@ -89,10 +89,10 @@ export const deleteUser = async (req, res, next) => {
 
 export const changeRoleOfUser = async (req, res, next) => {
   try {
-    let { userInfo } = req;
-    let { changedId, changedRole } = req.body;
+    const { userInfo } = req;
+    const { changedId, changedRole } = req.body;
     if (userInfo.userRole == "superAdmin") {
-      let user = await User.findByIdAndUpdate(changedId, {
+      const user = await User.findByIdAndUpdate(changedId, {
         role: changedRole,
       });
       user && res.status(200).json({ message: "Changed successfully!" });
@@ -103,4 +103,11 @@ export const changeRoleOfUser = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+export const usersController = {
+  inviteNewUser,
+  getAllUsers,
+  deleteUser,
+  changeRoleOfUser,
 };

@@ -1,6 +1,7 @@
-import authRoute from "./auth/auth.js";
-import usersRoute from "./users/users.js";
-import projectRoute from "./projects/project.js";
-import ticketsRoute from "./tickets/ticket.js";
+import authRoute from "./auth.js";
+import usersRoute from "./users.js";
+import projectRoute from "./project.js";
+import ticketsRoute from "./ticket.js";
+import notesRoute from "./notes.js";
 
-export { authRoute, usersRoute, projectRoute, ticketsRoute };
+export { authRoute, usersRoute, projectRoute, ticketsRoute, notesRoute };

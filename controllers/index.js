@@ -1,37 +1,18 @@
-import {
-  registerUser,
-  loginUser,
-  handleRefreshToken,
-  handleSocials,
-  handleLogout,
-} from "./auth/auth.js";
-import {
-  inviteNewUser,
-  getAllUsers,
-  deleteUser,
-  changeRoleOfUser,
-} from "./users/users.js";
-import { createProject, getProjects } from "./project/project.js";
-import { getTickets } from "./ticket/ticket.js";
+import { ticketController } from "./ticket.js";
+import { notesController } from "./notes.js";
+import { authController } from "./auth.js";
+import { usersController } from "./users.js";
+import { projectController } from "./project.js";
 
 export {
   // auth
-  registerUser,
-  loginUser,
-  handleRefreshToken,
-  handleSocials,
-  handleLogout,
-
+  authController,
   // users
-  inviteNewUser,
-  getAllUsers,
-  deleteUser,
-  changeRoleOfUser,
-
+  usersController,
   // projects
-  createProject,
-  getProjects,
-
+  projectController,
   // tickets
-  getTickets,
+  ticketController,
+  // notes
+  notesController,
 };

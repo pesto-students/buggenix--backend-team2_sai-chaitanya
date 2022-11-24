@@ -1,25 +1,24 @@
-import { User } from "../../models/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { createError } from "../../utils/error.js";
+import { User } from "../models/index.js";
+import { createError } from "../utils/error.js";
 
 export const registerUser = async (req, res, next) => {
   try {
-    let { username, email, password } = req.body;
+    const { username, email, password } = req.body;
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
-    let user = {
+    const user = {
       username,
       email,
       password: hash,
     };
-    let responseUser;
-    // userResponse
+    let userResponse;
     // remove member
     if (req.body.member) {
       let invitedUser = await User.findOne({ email: req.body.email });
       if (invitedUser && invitedUser.status == "pending") {
-        responseUser = await User.findByIdAndUpdate(
+        userResponse = await User.findByIdAndUpdate(
           invitedUser._id,
           {
             status: "active",
@@ -33,11 +32,11 @@ export const registerUser = async (req, res, next) => {
       }
     } else {
       const newUser = new User(user);
-      responseUser = await newUser.save();
+      userResponse = await newUser.save();
     }
-    const { password: pass, ...otherDetails } = responseUser._doc;
-    let { _id: id, role, superAdminId } = otherDetails;
-    let signedObj = {
+    const { password: pass, ...otherDetails } = userResponse._doc;
+    const { _id: id, role, superAdminId } = otherDetails;
+    const signedObj = {
       id,
       role,
       superAdminId,
@@ -45,16 +44,13 @@ export const registerUser = async (req, res, next) => {
       username,
     };
     const token = jwt.sign(signedObj, process.env.JWT, { expiresIn: "1d" });
-    // camelcase here
-    const refresh_token = jwt.sign(
-      signedObj,
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
-    );
-    const updatedUser = await User.findByIdAndUpdate(otherDetails._id, {
-      refreshToken: refresh_token,
+    const refreshToken = jwt.sign(signedObj, process.env.REFRESH_TOKEN_SECRET, {
+      expiresIn: "1d",
     });
-    res.cookie("refresh_token", refresh_token, {
+    const updatedUser = await User.findByIdAndUpdate(otherDetails._id, {
+      refreshToken,
+    });
+    res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
       sameSite: "None",
       secure: true,
@@ -69,10 +65,10 @@ export const registerUser = async (req, res, next) => {
 
 export const handleSocials = async (req, res, next) => {
   try {
-    let { userInfo } = req;
+    const { userInfo } = req;
     if (userInfo.userRole == "superAdmin") {
-      let { twitter, facebook } = req.body;
-      let pushedObj = {
+      const { twitter, facebook } = req.body;
+      const pushedObj = {
         twitter,
         facebook,
       };
@@ -94,7 +90,7 @@ export const handleSocials = async (req, res, next) => {
 
 export const loginUser = async (req, res, next) => {
   try {
-    let { email, password } = req.body;
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) return next(createError(404, "User not found!"));
     if (user && user.status == "pending") {
@@ -118,17 +114,19 @@ export const loginUser = async (req, res, next) => {
     };
     // change the expiry of access token
     const token = jwt.sign(signedObj, process.env.JWT, { expiresIn: "1d" });
-    const refresh_token = jwt.sign(
-      signedObj,
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
-    );
+    const refreshToken = jwt.sign(signedObj, process.env.REFRESH_TOKEN_SECRET, {
+      expiresIn: "1d",
+    });
     // store the refresh token in uers collection for particular user
     const updatedUser = await User.findByIdAndUpdate(user._id, {
-      refreshToken: refresh_token,
+      refreshToken,
     });
-    const { password: pass, refreshToken, ...otherDetails } = user._doc;
-    res.cookie("refresh_token", refresh_token, {
+    const {
+      password: pass,
+      refreshToken: TokenResp,
+      ...otherDetails
+    } = user._doc;
+    res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
       sameSite: "None",
       secure: true,
@@ -154,8 +152,8 @@ export const handleRefreshToken = async (req, res, next) => {
       process.env.REFRESH_TOKEN_SECRET,
       (err, decoded) => {
         if (err || foundUser._id !== decoded.id) return res.sendStatus(403);
-        let { id: id, role, superAdminId, email, username } = decoded;
-        let signedObj = {
+        const { id: id, role, superAdminId, email, username } = decoded;
+        const signedObj = {
           id,
           role,
           superAdminId,
@@ -202,4 +200,11 @@ export const handleLogout = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+export const authController = {
+  registerUser,
+  loginUser,
+  handleRefreshToken,
+  handleLogout,
 };

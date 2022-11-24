@@ -1,7 +1,7 @@
 import axios from "axios";
-import { Ticket, Twitter, User } from "../../models/index.js";
-import { createError } from "../../utils/error.js";
+import { Notes, Ticket, Twitter, User } from "../models/index.js";
 import cron from "node-cron";
+import { createError } from "../utils/error.js";
 
 // cron.schedule("* */1 * * *", async () => {
 //   console.log("running a task every minute");
@@ -87,6 +87,7 @@ export const getTickets = async (req, res, next) => {
     res.status(200).json({ tickets: ticket });
   } catch (err) {
     console.log(err);
+    next(err);
   }
 };
 
@@ -139,3 +140,6 @@ const getTicketFromTwitter = async (twitterHandle, sinceId = "") => {
   }
 };
 
+export const ticketController = {
+  getTickets,
+};

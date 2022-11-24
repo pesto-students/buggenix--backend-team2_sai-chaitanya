@@ -1,11 +1,7 @@
-import Project from "./projects/project.js";
-import User from "./users/user.js";
-import Ticket from './tickets/ticket.js';
+import Project from "./project.js";
+import User from "./user.js";
+import Ticket from "./ticket.js";
 import Twitter from "./twitter.js";
+import Notes from "./notes.js";
 
-export {
-    User,
-    Project,
-    Ticket,
-    Twitter
-}
+export { User, Project, Ticket, Twitter, Notes };

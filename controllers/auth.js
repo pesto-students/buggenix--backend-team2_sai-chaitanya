@@ -50,11 +50,12 @@ export const registerUser = async (req, res, next) => {
     const updatedUser = await User.findByIdAndUpdate(otherDetails._id, {
       refreshToken,
     });
+    const maxAge = 24 * 60 * 60 * 1000;
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
       sameSite: "None",
       secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: maxAge,
     });
     // create const max age
     res.status(200).json({ ...otherDetails, accessToken: token });

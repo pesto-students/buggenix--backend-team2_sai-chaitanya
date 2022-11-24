@@ -8,6 +8,7 @@ import {
   usersRoute,
   projectRoute,
   ticketsRoute,
+  socialRoute,
 } from "./routes/index.js";
 import { corsOptions } from "./config/corsOptions.js";
 import { credentials } from "./utils/credentials.js";
@@ -43,6 +44,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/project", projectRoute);
 app.use("/api/tickets", ticketsRoute);
+app.use('/api/social',socialRoute)
 
 app.use((err, req, res, next) => {
   console.log("errmiddleware", err);

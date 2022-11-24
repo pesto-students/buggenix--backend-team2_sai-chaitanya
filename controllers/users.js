@@ -32,7 +32,7 @@ export const inviteNewUser = async (req, res, next) => {
       let responseUser;
       if (sentMail) {
         let user = {
-          username: "pending",
+          username: "-",
           email: to,
           password: "pending",
           status: "pending",

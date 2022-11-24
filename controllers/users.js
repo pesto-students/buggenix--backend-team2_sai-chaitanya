@@ -32,7 +32,7 @@ export const inviteNewUser = async (req, res, next) => {
       let responseUser;
       if (sentMail) {
         let user = {
-          username: "-",
+          username: "null",
           email: to,
           password: "pending",
           status: "pending",
@@ -43,7 +43,7 @@ export const inviteNewUser = async (req, res, next) => {
         responseUser = await newUser.save();
         responseUser = responseUser._doc;
       }
-      const { password: pass, username, ...otherDetails } = responseUser;
+      const { password: pass, ...otherDetails } = responseUser;
       res.status(200).json({ message: "sent successfully", ...otherDetails });
     } else {
       res.status(403).json({ message: "Forbidden" });

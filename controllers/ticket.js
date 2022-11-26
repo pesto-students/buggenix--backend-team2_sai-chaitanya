@@ -2,6 +2,7 @@ import axios from "axios";
 import { Notes, Ticket, Twitter, User } from "../models/index.js";
 import cron from "node-cron";
 import { createError } from "../utils/error.js";
+import { json } from "express";
 
 // cron.schedule("* */1 * * *", async () => {
 //   console.log("running a task every minute");
@@ -140,6 +141,78 @@ const getTicketFromTwitter = async (twitterHandle, sinceId = "") => {
   }
 };
 
+const updateTicket = async (req, res, next) => {
+  try {
+    const { userInfo } = req;
+    const { ticketId, status, assignedTo } = req.body;
+    console.log(req.body);
+    if (userInfo.userRole == "superAdmin" || userInfo.userRole == "admin") {
+      if (!ticketId)
+        return res
+          .status(400)
+          .json({ message: "Ticket Id is not present in body payload" });
+      let updateObj = {};
+      if (assignedTo) updateObj["assignedTo"] = assignedTo;
+      else if (status) updateObj["status"] = status;
+      else
+        return res.status(400).json({
+          message: "Only status and assignedTo is allowed in body payload",
+        });
+      console.log(updateObj);
+      const ticketResp = await Ticket.findByIdAndUpdate(ticketId, updateObj);
+      if (ticketResp)
+        return res.status(200).json({ message: "Updated successfully!" });
+      return res.status(404).json({ message: "Ticket not found!" });
+    } else {
+      res.status(403).json({ message: "Forbidden" });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+const moveTicketToProject = async (req, res, next) => {
+  try {
+    const { userInfo } = req;
+    const { ticketId, projectId } = req.body;
+    if (userInfo.userRole == "superAdmin" || userInfo.userRole == "admin") {
+      if (!ticketId)
+        return res
+          .status(400)
+          .json({ message: "Ticket Id is neccesary in body's payload" });
+      if (!projectId)
+        return res
+          .status(400)
+          .json({ message: "Project Id is neccesary in body's payload" });
+      const ticket = await Ticket.findByIdAndUpdate(ticketId, { projectId });
+      ticket && res.status(200).json({ message: "Ticket moved sucessfully!" });
+      !ticket && res.status(404).json({ message: "Ticket not found!" });
+    } else {
+      res.status(403).json({ message: "Forbidden" });
+    }
+  } catch (err) {}
+};
+
+const deleteTicket = async (req, res, next) => {
+  try {
+    const { userInfo } = req;
+    const { id } = req.params;
+    const objId = mongoose.Types.ObjectId(id);
+    if (userInfo.userRole == "superAdmin" || userInfo.userRole == "admin") {
+      const ticket = await findByIdAndDelete(objId);
+      ticket && res.status(200).json({ message: "Deleted successfully!" });
+      !ticket && res.status(404).json({ message: "Ticket not found!" });
+    } else {
+      res.status(403).json({ message: "Forbidden" });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const ticketController = {
   getTickets,
+  updateTicket,
+  deleteTicket,
+  moveTicketToProject,
 };

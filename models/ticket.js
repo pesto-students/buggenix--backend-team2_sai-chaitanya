@@ -24,6 +24,15 @@ const TicketSchema = new mongoose.Schema(
       default: "twitter",
       required: false,
     },
+    assignedTo:{
+        type: String,
+        default: "None",
+        required: false,
+    },
+    projectId:{
+        type: String,
+        required: false,
+    }
   },
   { timestamps: true }
 );

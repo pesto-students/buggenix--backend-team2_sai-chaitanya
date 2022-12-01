@@ -1,5 +1,7 @@
 import { Project, Ticket } from "../models/index.js";
 import { createError } from "../utils/error.js";
+import {format}  from "date-fns";
+
 
 export const createProject = async (req, res, next) => {
   try {
@@ -49,7 +51,9 @@ export const createProject = async (req, res, next) => {
     } else {
       return next(createError(403, "Forbidden"));
     }
-    res.status(200).json({ ...projectResp._doc,"ticketCount":ticketCount,openTicketCount,members,id:projectResp._doc._id });
+    const createdAt = projectResp._doc.createdAt;
+    const formattedDate = format(createdAt, 'MMM dd, yyyy');
+    res.status(200).json({ ...projectResp._doc,"ticketCount":ticketCount,openTicketCount,members,id:projectResp._doc._id,"createdAt":formattedDate });
   } catch (err) {
     next(err);
   }
@@ -87,13 +91,15 @@ export const getProjects = async (req, res, next) => {
       let newProject = {
         ...project._doc
       }
-
       const openedTickets = tickets.filter((ticket) => ticket.status == "open");
       const members = tickets.map((ticket)=>ticket?.assigneeInfo);
       newProject["ticketCount"] = tickets.length;
       newProject["openTicketCount"] = openedTickets.length;
       newProject["members"] = members;
       newProject["id"]=id
+      const createdAt = project._doc.createdAt;
+      const formattedDate = format(createdAt, 'MMM dd, yyyy');
+      newProject["createdAt"]=formattedDate
       console.log(newProject)
       newProjects.push(newProject)
     }

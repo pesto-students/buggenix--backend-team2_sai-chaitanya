@@ -10,7 +10,7 @@ const TicketSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    scrapedInfo: {
+    creatorInfo: {
       type: Object,
       required: true,
     },
@@ -19,20 +19,35 @@ const TicketSchema = new mongoose.Schema(
       default: "open",
       required: false,
     },
+    type:{
+      type:String,
+      default:"feedback",
+      required:false
+    },
+    priority:{
+      type:String,
+      default:"urgent",
+      required:false
+    },
     scrapedFrom: {
       type: String,
       default: "twitter",
       required: false,
     },
-    assignedTo:{
+    assigneeId:{
         type: String,
-        default: "None",
+        default: "null",
         required: false,
+    },
+    assigneeInfo:{
+      type: Object,
+      required: false,
     },
     projectId:{
         type: String,
         required: false,
-    }
+    },
+    conversations:[{type:'ObjectId',ref:'Notes'}]
   },
   { timestamps: true }
 );

@@ -1,4 +1,4 @@
-import { Project } from "../models/index.js";
+import { Project, Ticket } from "../models/index.js";
 import { createError } from "../utils/error.js";
 
 export const createProject = async (req, res, next) => {
@@ -16,10 +16,10 @@ export const createProject = async (req, res, next) => {
         name,
         description,
         superAdminId,
-        createrInfo: {
-          createrName,
-          createrEmail,
-          createrId: superAdminId,
+        creator: {
+          name: createrName,
+          email: createrEmail,
+          id: superAdminId,
         },
       };
       const newProject = new Project(project);
@@ -35,10 +35,10 @@ export const createProject = async (req, res, next) => {
         name,
         description,
         superAdminId,
-        createrInfo: {
-          createrName,
-          createrEmail,
-          createrId,
+        creator: {
+          name: createrName,
+          email: createrEmail,
+          id: createrId,
         },
       };
       const newProject = new Project(project);
@@ -57,8 +57,43 @@ export const getProjects = async (req, res, next) => {
     const { userInfo } = req;
     const { userRole, userSuperAdminId, userId } = userInfo;
     const superAdminId = userRole == "superAdmin" ? userId : userSuperAdminId;
-    const projects = await Project.find({ superAdminId });
-    res.status(200).json({ projects });
+    let projects = await Project.find({ superAdminId });
+    let newProjects = []
+    for (let project of projects) {
+      const { _id: id } = project;
+      console.log(id);
+      const tickets = await Ticket.find(
+        { projectId: id },
+        {
+          _id: 0,
+          type: 0,
+          description: 0,
+          creatorInfo: 0,
+          priority: 0,
+          scrapedFrom: 0,
+          conversations: 0,
+          createdAt: 0,
+          updatedAt: 0,
+          __v: 0,
+          projectId: 0,
+          assigneeId: 0,
+          superAdminId: 0,
+        }
+      );
+      console.log("tickets", tickets);
+      let newProject = {
+        ...project._doc
+      }
+
+      const openedTickets = tickets.filter((ticket) => ticket.status == "open");
+      const members = tickets.map((ticket)=>ticket?.assigneeInfo);
+      newProject["ticketCount"] = tickets.length;
+      newProject["openTicketCount"] = openedTickets.length;
+      newProject["members"] = members;
+      console.log(newProject)
+      newProjects.push(newProject)
+    }
+    res.status(200).json({ newProjects });
   } catch (err) {
     next(err);
   }

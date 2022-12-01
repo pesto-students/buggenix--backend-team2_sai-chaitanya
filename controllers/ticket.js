@@ -14,6 +14,7 @@ import { json } from "express";
 //   });
 //   //   console.log("users", users);
 //   for (const user of users) {
+//     console.log("user",user)
 //     let twitterHandle = user.socialNetworkHandle[0].twitter || "";
 //     let superAdminId = user._id;
 //     let twitter = await Twitter.findOne({ superAdminId });
@@ -31,7 +32,7 @@ import { json } from "express";
 //       if (status != 200 || data.length == 0) continue;
 //       let { newest_id: newestId } = meta;
 //       lastScrapedId = newestId;
-//         console.log("twitterData");
+//       console.log("twitterData");
 //       if (data.length) {
 //         // console.log("11",data.length,data,includes)
 //         for (const info of data) {
@@ -44,11 +45,15 @@ import { json } from "express";
 //             description,
 //             superAdminId,
 //             scrapedFrom,
-//             scrapedInfo: {
+//             creatorInfo: {
 //               tweetId,
 //               created_at,
-//               author_id,
-//               twitterUserName: twitterUser.username,
+//               id:author_id,
+//               name: twitterUser.username,
+//               name: "Harish Balasubramanian",
+//               id: "56739",
+//               type: "customer",
+//               channel: "twitter",
 //             },
 //           };
 //           // console.log("twitterUser", twitterUser);
@@ -84,6 +89,8 @@ export const getTickets = async (req, res, next) => {
     }
     let ticket = await Ticket.find({
       superAdminId: superAdminId,
+    }).populate({
+      path: "conversations",
     });
     res.status(200).json({ tickets: ticket });
   } catch (err) {
@@ -144,7 +151,7 @@ const getTicketFromTwitter = async (twitterHandle, sinceId = "") => {
 const updateTicket = async (req, res, next) => {
   try {
     const { userInfo } = req;
-    const { ticketId, status, assignedTo } = req.body;
+    const { ticketId, status, assigneeId, type, priority } = req.body;
     console.log(req.body);
     if (userInfo.userRole == "superAdmin" || userInfo.userRole == "admin") {
       if (!ticketId)
@@ -152,11 +159,26 @@ const updateTicket = async (req, res, next) => {
           .status(400)
           .json({ message: "Ticket Id is not present in body payload" });
       let updateObj = {};
-      if (assignedTo) updateObj["assignedTo"] = assignedTo;
-      else if (status) updateObj["status"] = status;
+      if (assigneeId) {
+        const user = await User.findById(assigneeId);
+        if (user) {
+          updateObj["assigneeId"] = assigneeId;
+          updateObj["assigneeInfo"] = {
+            name: user.username,
+            id: user._id,
+          };
+        } else {
+          res.status(404).json({
+            message: "Assignee Id is invalid",
+          });
+          return;
+        }
+      } else if (status) updateObj["status"] = status;
+      else if (type) updateObj["type"] = type;
+      else if (priority) updateObj["priority"] = priority;
       else
         return res.status(400).json({
-          message: "Only status and assignedTo is allowed in body payload",
+          message: "Something is missing in body's payload",
         });
       console.log(updateObj);
       const ticketResp = await Ticket.findByIdAndUpdate(ticketId, updateObj);

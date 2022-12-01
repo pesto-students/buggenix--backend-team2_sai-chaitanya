@@ -9,6 +9,7 @@ export const inviteNewUser = async (req, res, next) => {
     if (userInfo.userRole == "superAdmin") {
       const from = "buggenixhelpdesk@gmail.com";
       const to = req.body.to;
+      const role = req.body.role;
       const subject = "Email invitation";
       const authUser = process.env.AUTH_USER;
       const authPass = process.env.AUTH_PASS;
@@ -37,7 +38,7 @@ export const inviteNewUser = async (req, res, next) => {
           password: "pending",
           status: "pending",
           superAdminId: userInfo.userId,
-          role: "member",
+          role: role,
         };
         const newUser = new User(user);
         responseUser = await newUser.save();

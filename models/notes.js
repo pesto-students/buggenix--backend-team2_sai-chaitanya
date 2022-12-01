@@ -6,7 +6,11 @@ const NotesSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    createdBy: {
+    type:{
+      type:String,
+      default:'note'
+    },
+    creatorInfo: {
       type: Object,
       required: true,
     },

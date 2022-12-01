@@ -96,7 +96,7 @@ export const getProjects = async (req, res, next) => {
       console.log(newProject)
       newProjects.push(newProject)
     }
-    res.status(200).json({ newProjects });
+    res.status(200).json({ data:newProjects });
   } catch (err) {
     next(err);
   }

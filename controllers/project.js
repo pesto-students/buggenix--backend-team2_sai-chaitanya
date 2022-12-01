@@ -24,6 +24,9 @@ export const createProject = async (req, res, next) => {
       };
       const newProject = new Project(project);
       projectResp = await newProject.save();
+      let ticketCount = 0;
+      let openTicketCount = 0;
+      let members = []
     } else if (userInfo.userRole == "admin") {
       const {
         userName: createrName,
@@ -46,7 +49,7 @@ export const createProject = async (req, res, next) => {
     } else {
       return next(createError(403, "Forbidden"));
     }
-    res.status(200).json({ ...projectResp._doc });
+    res.status(200).json({ ...projectResp._doc,"ticketCount":ticketCount,openTicketCount,members });
   } catch (err) {
     next(err);
   }

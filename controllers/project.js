@@ -49,7 +49,7 @@ export const createProject = async (req, res, next) => {
     } else {
       return next(createError(403, "Forbidden"));
     }
-    res.status(200).json({ ...projectResp._doc,"ticketCount":ticketCount,openTicketCount,members });
+    res.status(200).json({ ...projectResp._doc,"ticketCount":ticketCount,openTicketCount,members,id:projectResp._doc._id });
   } catch (err) {
     next(err);
   }
@@ -93,6 +93,7 @@ export const getProjects = async (req, res, next) => {
       newProject["ticketCount"] = tickets.length;
       newProject["openTicketCount"] = openedTickets.length;
       newProject["members"] = members;
+      newProject["id"]=id
       console.log(newProject)
       newProjects.push(newProject)
     }

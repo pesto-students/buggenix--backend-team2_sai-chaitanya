@@ -64,6 +64,7 @@ export const createProject = async (req, res, next) => {
         members,
         id: projectResp._doc._id,
         createdAt: formattedDate,
+        ticketIds:[]
       });
   } catch (err) {
     next(err);

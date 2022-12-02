@@ -5,7 +5,6 @@ import { createError } from "../utils/error.js";
 import { json } from "express";
 import { format } from "date-fns";
 
-
 // cron.schedule("* */2 * * *", async () => {
 //   console.log("running a task every minute");
 //   let users = await User.find({
@@ -102,8 +101,8 @@ export const getTickets = async (req, res, next) => {
       ticketObj = {
         ...ticket,
         id: ticket._id,
-        timestamp:formattedDate,
-        conversationCount:ticket.conversations.length
+        timestamp: formattedDate,
+        conversationCount: ticket.conversations.length,
       };
 
       ticketResponse.push(ticketObj);
@@ -167,7 +166,8 @@ const getTicketFromTwitter = async (twitterHandle, sinceId = "") => {
 const updateTicket = async (req, res, next) => {
   try {
     const { userInfo } = req;
-    const { ticketId, status, assigneeId, type, priority } = req.body;
+    const { ticketId, status, assigneeId, type, priority, projectId } =
+      req.body;
     console.log(req.body);
     if (userInfo.userRole == "superAdmin" || userInfo.userRole == "admin") {
       if (!ticketId)
@@ -192,7 +192,9 @@ const updateTicket = async (req, res, next) => {
       } else if (status) updateObj["status"] = status;
       else if (type) updateObj["type"] = type;
       else if (priority) updateObj["priority"] = priority;
-      else
+      else if (projectId) {
+        updateObj['projectId'] = projectId;
+      } else
         return res.status(400).json({
           message: "Something is missing in body's payload",
         });

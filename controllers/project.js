@@ -8,6 +8,9 @@ export const createProject = async (req, res, next) => {
     const { userInfo } = req;
     let projectResp;
     const { name, description } = req.body;
+    let ticketCount = 0;
+    let openTicketCount = 0;
+    let members = []
     if (userInfo.userRole == "superAdmin") {
       const {
         userName: createrName,
@@ -26,9 +29,10 @@ export const createProject = async (req, res, next) => {
       };
       const newProject = new Project(project);
       projectResp = await newProject.save();
-      let ticketCount = 0;
-      let openTicketCount = 0;
-      let members = []
+      members.push({
+        id:userInfo.userId,
+        name:userInfo.userName
+      })
     } else if (userInfo.userRole == "admin") {
       const {
         userName: createrName,
@@ -48,6 +52,11 @@ export const createProject = async (req, res, next) => {
       };
       const newProject = new Project(project);
       projectResp = await newProject.save();
+      // add superadmin account
+      members.push({
+        id:userInfo.userId,
+        name:userInfo.userName
+      })
     } else {
       return next(createError(403, "Forbidden"));
     }

@@ -5,7 +5,7 @@ import { createError } from "../utils/error.js";
 import { json } from "express";
 import { format } from "date-fns";
 
-cron.schedule("* */2 * * *", async () => {
+cron.schedule("* */1 * * *", async () => {
   console.log("running a task every minute");
   let users = await User.find({
     $and: [

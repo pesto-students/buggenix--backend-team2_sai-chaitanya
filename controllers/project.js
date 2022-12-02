@@ -1,7 +1,6 @@
 import { Project, Ticket } from "../models/index.js";
 import { createError } from "../utils/error.js";
-import {format}  from "date-fns";
-
+import { format } from "date-fns";
 
 export const createProject = async (req, res, next) => {
   try {
@@ -10,7 +9,7 @@ export const createProject = async (req, res, next) => {
     const { name, description } = req.body;
     let ticketCount = 0;
     let openTicketCount = 0;
-    let members = []
+    let members = [];
     if (userInfo.userRole == "superAdmin") {
       const {
         userName: createrName,
@@ -29,10 +28,7 @@ export const createProject = async (req, res, next) => {
       };
       const newProject = new Project(project);
       projectResp = await newProject.save();
-      members.push({
-        id:userInfo.userId,
-        name:userInfo.userName
-      })
+      members.push(project.creator);
     } else if (userInfo.userRole == "admin") {
       const {
         userName: createrName,
@@ -53,16 +49,22 @@ export const createProject = async (req, res, next) => {
       const newProject = new Project(project);
       projectResp = await newProject.save();
       // add superadmin account
-      members.push({
-        id:userInfo.userId,
-        name:userInfo.userName
-      })
+      members.push(project.creator);
     } else {
       return next(createError(403, "Forbidden"));
     }
     const createdAt = projectResp._doc.createdAt;
-    const formattedDate = format(createdAt, 'MMM dd, yyyy');
-    res.status(200).json({ ...projectResp._doc,"ticketCount":ticketCount,openTicketCount,members,id:projectResp._doc._id,"createdAt":formattedDate });
+    const formattedDate = format(createdAt, "MMM dd, yyyy");
+    res
+      .status(200)
+      .json({
+        ...projectResp._doc,
+        ticketCount: ticketCount,
+        openTicketCount,
+        members,
+        id: projectResp._doc._id,
+        createdAt: formattedDate,
+      });
   } catch (err) {
     next(err);
   }
@@ -74,7 +76,7 @@ export const getProjects = async (req, res, next) => {
     const { userRole, userSuperAdminId, userId } = userInfo;
     const superAdminId = userRole == "superAdmin" ? userId : userSuperAdminId;
     let projects = await Project.find({ superAdminId });
-    let newProjects = []
+    let newProjects = [];
     for (let project of projects) {
       const { _id: id } = project;
       console.log(id);
@@ -98,19 +100,20 @@ export const getProjects = async (req, res, next) => {
       );
       console.log("tickets", tickets);
       let newProject = {
-        ...project._doc
-      }
+        ...project._doc,
+      };
       const openedTickets = tickets.filter((ticket) => ticket.status == "open");
-      const members = tickets.map((ticket)=>ticket?.assigneeInfo);
+      let members = tickets.map((ticket) => ticket?.assigneeInfo);
+      members.push(project.creator)
       newProject["ticketCount"] = tickets.length;
       newProject["openTicketCount"] = openedTickets.length;
       newProject["members"] = members;
-      newProject["id"]=id
+      newProject["id"] = id;
       const createdAt = project._doc.createdAt;
-      const formattedDate = format(createdAt, 'MMM dd, yyyy');
-      newProject["createdAt"]=formattedDate
-      console.log(newProject)
-      newProjects.push(newProject)
+      const formattedDate = format(createdAt, "MMM dd, yyyy");
+      newProject["createdAt"] = formattedDate;
+      console.log(newProject);
+      newProjects.push(newProject);
     }
     res.status(200).json(newProjects);
   } catch (err) {

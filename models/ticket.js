@@ -21,12 +21,12 @@ const TicketSchema = new mongoose.Schema(
     },
     type:{
       type:String,
-      default:"feedback",
+      default:null,
       required:false
     },
     priority:{
       type:String,
-      default:"urgent",
+      default:null,
       required:false
     },
     scrapedFrom: {
@@ -45,6 +45,7 @@ const TicketSchema = new mongoose.Schema(
     },
     projectId:{
         type: String,
+        deafult:null,
         required: false,
     },
     conversations:[{type:'ObjectId',ref:'Notes'}]

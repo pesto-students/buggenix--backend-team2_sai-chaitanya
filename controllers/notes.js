@@ -14,13 +14,13 @@ export const addNote = async (req, res, next) => {
         name:userName,
         email:userEmail,
       },
-      timestamp:new Date()
+      timestamp:new Date().getTime()
     };
     const newNote = new Notes(noteObj);
     const note = await newNote.save();
     console.log(note._doc)
     await Ticket.findByIdAndUpdate(ticketId,{$push:{conversations:note._doc._id}});
-    res.status(200).json({ note: note });
+    res.status(200).json({  ...note._doc,id:note._doc._id });
   } catch (err) {
     next(err);
   }

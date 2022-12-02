@@ -6,9 +6,9 @@ const NotesSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    type:{
-      type:String,
-      default:'note'
+    type: {
+      type: String,
+      default: "note",
     },
     creatorInfo: {
       type: Object,
@@ -18,10 +18,10 @@ const NotesSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    timestamp:{
-      type:Date,
-      required:false
-    }
+    timestamp: {
+      type: Date,
+      required: false,
+    },
   },
   { timestamps: true }
 );

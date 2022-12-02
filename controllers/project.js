@@ -112,6 +112,7 @@ export const getProjects = async (req, res, next) => {
       const createdAt = project._doc.createdAt;
       const formattedDate = format(createdAt, "MMM dd, yyyy");
       newProject["createdAt"] = formattedDate;
+      newProject["ticketIds"]=tickets.map((ticket) => ticket._id) || []
       console.log(newProject);
       newProjects.push(newProject);
     }

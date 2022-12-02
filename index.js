@@ -47,7 +47,7 @@ app.use("/api/projects", projectRoute);
 app.use("/api/tickets", ticketsRoute);
 app.use('/api/social',socialRoute)
 app.use('/api/notes',noteRoute)
-
+console.log("running")
 
 app.use((err, req, res, next) => {
   console.log("errmiddleware", err);

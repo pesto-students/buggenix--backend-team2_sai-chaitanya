@@ -106,7 +106,7 @@ export const getTickets = async (req, res, next) => {
         conversationCount:ticket.conversations.length
       };
 
-      ticketResponse.push(ticketObj)
+      ticketResponse.push(ticketObj);
     }
     res.status(200).json(ticketResponse);
   } catch (err) {

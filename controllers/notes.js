@@ -14,6 +14,7 @@ export const addNote = async (req, res, next) => {
         name:userName,
         email:userEmail,
       },
+      timestamp:new Date()
     };
     const newNote = new Notes(noteObj);
     const note = await newNote.save();

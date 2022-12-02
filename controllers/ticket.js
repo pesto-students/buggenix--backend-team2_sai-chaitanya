@@ -108,7 +108,7 @@ export const getTickets = async (req, res, next) => {
 
       ticketResponse.push(ticketObj)
     }
-    res.status(200).json({ tickets: tickets });
+    res.status(200).json(ticketResponse);
   } catch (err) {
     console.log(err);
     next(err);

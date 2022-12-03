@@ -126,13 +126,13 @@ export const getTickets = async (req, res, next) => {
     let ticketResponse = [];
     for (let ticket of tickets) {
       let ticketObj = {};
-      const createdAt = ticket.createdAt;
+      const createdAt = ticket._doc.createdAt;
       const formattedDate = format(createdAt, "MMM dd, yyyy");
       ticketObj = {
-        ...ticket,
+        ...ticket._doc,
         id: ticket._id,
         timestamp: formattedDate,
-        conversationCount: ticket.conversations.length,
+        conversationCount: ticket._doc.conversations.length,
       };
 
       ticketResponse.push(ticketObj);

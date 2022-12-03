@@ -58,16 +58,26 @@ export const getAllUsers = async (req, res, next) => {
   try {
     const { userInfo } = req;
     let superAdminId = userInfo.userSuperAdminId;
+    let userId = userInfo.userId;
     if (userInfo.userRole == "superAdmin") {
       superAdminId = userInfo.userId;
     }
-    const user = await User.find(
+    let user = await User.find(
       {
-        superAdminId: superAdminId,
+        $or: [
+          {
+            superAdminId: superAdminId,
+          },
+          {
+            _id: userId,
+          }
+        ],
       },
       { password: 0, refreshToken: 0, socialNetworkHandle: 0 }
     );
-    res.status(200).json({ team: user });
+    let newResponse = [...user];
+    user.push();
+    res.status(200).json({ team: newResponse });
   } catch (err) {
     next(err);
   }
@@ -77,8 +87,8 @@ export const deleteUser = async (req, res, next) => {
   try {
     const { userInfo } = req;
     const { id } = req.params;
-    console.log(id)
-    const objId = mongoose.Types.ObjectId(id)
+    console.log(id);
+    const objId = mongoose.Types.ObjectId(id);
     if (userInfo.userRole == "superAdmin") {
       const user = await User.findByIdAndDelete(objId);
       user && res.status(200).json({ message: "Deleted successfully!" });

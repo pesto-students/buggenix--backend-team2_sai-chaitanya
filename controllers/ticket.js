@@ -80,6 +80,34 @@ import { format } from "date-fns";
 //   }
 // });
 
+const createTicket = async (req, res, next) => {
+  try {
+    const { userInfo } = req;
+    const { status, assigneeId, type, priority, projectId, description } =
+      req.body;
+    let ticket = {
+      description,
+      superAdminId: userInfo.userSuperAdminId,
+      creatorInfo: {
+        id: userInfo.userId,
+        name: userInfo.username,
+        type: "team-member",
+        channel: "",
+      },
+    };
+    if(status) ticket["status"] = status;
+    if(assigneeId) ticket["assigneeId"] = assigneeId;
+    if(type) ticket["type"] = type;
+    if(priority) ticket["priority"] = priority;
+    if(projectId) ticket["projectId"] = projectId;
+    ticket["conversations"]=[]
+    const newTicket = new Ticket(ticket);
+    let responseTicket = await newTicket.save();
+    res.status(200).json({...responseTicket._doc,id:responseTicket._doc>_id});
+  } catch (err) {
+    next(err);
+  }
+};
 export const getTickets = async (req, res, next) => {
   try {
     // console.log("twitterData",twitterData);
@@ -193,7 +221,7 @@ const updateTicket = async (req, res, next) => {
       else if (type) updateObj["type"] = type;
       else if (priority) updateObj["priority"] = priority;
       else if (projectId) {
-        updateObj['projectId'] = projectId
+        updateObj["projectId"] = projectId;
       } else
         return res.status(400).json({
           message: "Something is missing in body's payload",
@@ -255,4 +283,5 @@ export const ticketController = {
   updateTicket,
   deleteTicket,
   moveTicketToProject,
+  createTicket
 };

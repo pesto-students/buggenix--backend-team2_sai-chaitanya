@@ -3,84 +3,87 @@ import { Notes, Ticket, Twitter, User } from "../models/index.js";
 import cron from "node-cron";
 import { createError } from "../utils/error.js";
 import { json } from "express";
-import { format } from "date-fns";
+import { format, getMinutes } from "date-fns";
 import user from "../models/user.js";
 import notes from "../models/notes.js";
+import { getTime } from 'date-fns'
 
-cron.schedule("* */1 * * *", async () => {
-  console.log("running a task every minute");
-  let users = await User.find({
-    $and: [
-      { socialNetworkHandle: { $exists: true } },
-      { "socialNetworkHandle.0": { $exists: true } },
-    ],
-  });
-  //   console.log("users", users);
-  for (const user of users) {
-    console.log("user", user);
-    let twitterHandle = user.socialNetworkHandle[0].twitter || "";
-    let superAdminId = user._id;
-    let twitter = await Twitter.findOne({ superAdminId });
-    let lastScrapedId = twitter?.lastScrapedId || "";
-    console.log("lastScrapedId", lastScrapedId, twitterHandle);
-    if (twitterHandle) {
-      console.log(22);
-      let twitterData = await getTicketFromTwitter(
-        twitterHandle,
-        lastScrapedId
-      );
-      let { status, data, includes, meta } = twitterData;
-      console.log("twitterData29");
-      //   break;
-      if (status != 200 || data.length == 0) continue;
-      let { newest_id: newestId } = meta;
-      lastScrapedId = newestId;
-      console.log("twitterData");
-      if (data.length) {
-        // console.log("11",data.length,data,includes)
-        for (const info of data) {
-          let { text: description, id: tweetId, created_at, author_id } = info;
-          // console.log("info",info)
-          let twitterUser = includes.users.find((user) => user.id == author_id);
-          // console.log("twitterUser",twitterUser)
-          let scrapedFrom = "twitter";
-          let ticket = {
-            description,
-            superAdminId,
-            scrapedFrom,
-            creatorInfo: {
-              tweetId,
-              created_at,
-              id: author_id,
-              name: twitterUser.username,
-              // name: "Harish Balasubramanian",
-              // id: "56739",
-              type: "customer",
-              channel: "twitter",
-            },
-          };
-          // console.log("twitterUser", twitterUser);
 
-          const newTicket = new Ticket(ticket);
-          let responseTicket = await newTicket.save();
-          // console.log("response", responseTicket);
-        }
-        if (twitter && lastScrapedId) {
-          console.log(63);
-          await Twitter.findOneAndUpdate({ superAdminId }, { lastScrapedId });
-        } else if (!twitter && lastScrapedId) {
-          console.log(66);
-          let twitterObj = {
-            superAdminId,
-            lastScrapedId,
-          };
-          const newTwitter = new Twitter(twitterObj);
-          await newTwitter.save();
-        }
-      }
-    }
-  }
-});
+
+// cron.schedule("* */1 * * *", async () => {
+//   console.log("running a task every minute");
+//   let users = await User.find({
+//     $and: [
+//       { socialNetworkHandle: { $exists: true } },
+//       { "socialNetworkHandle.0": { $exists: true } },
+//     ],
+//   });
+//   //   console.log("users", users);
+//   for (const user of users) {
+//     console.log("user", user);
+//     let twitterHandle = user.socialNetworkHandle[0].twitter || "";
+//     let superAdminId = user._id;
+//     let twitter = await Twitter.findOne({ superAdminId });
+//     let lastScrapedId = twitter?.lastScrapedId || "";
+//     console.log("lastScrapedId", lastScrapedId, twitterHandle);
+//     if (twitterHandle) {
+//       console.log(22);
+//       let twitterData = await getTicketFromTwitter(
+//         twitterHandle,
+//         lastScrapedId
+//       );
+//       let { status, data, includes, meta } = twitterData;
+//       console.log("twitterData29");
+//       //   break;
+//       if (status != 200 || data.length == 0) continue;
+//       let { newest_id: newestId } = meta;
+//       lastScrapedId = newestId;
+//       console.log("twitterData");
+//       if (data.length) {
+//         // console.log("11",data.length,data,includes)
+//         for (const info of data) {
+//           let { text: description, id: tweetId, created_at, author_id } = info;
+//           // console.log("info",info)
+//           let twitterUser = includes.users.find((user) => user.id == author_id);
+//           // console.log("twitterUser",twitterUser)
+//           let scrapedFrom = "twitter";
+//           let ticket = {
+//             description,
+//             superAdminId,
+//             scrapedFrom,
+//             creatorInfo: {
+//               tweetId,
+//               created_at,
+//               id: author_id,
+//               name: twitterUser.username,
+//               // name: "Harish Balasubramanian",
+//               // id: "56739",
+//               type: "customer",
+//               channel: "twitter",
+//             },
+//           };
+//           // console.log("twitterUser", twitterUser);
+
+//           const newTicket = new Ticket(ticket);
+//           let responseTicket = await newTicket.save();
+//           // console.log("response", responseTicket);
+//         }
+//         if (twitter && lastScrapedId) {
+//           console.log(63);
+//           await Twitter.findOneAndUpdate({ superAdminId }, { lastScrapedId });
+//         } else if (!twitter && lastScrapedId) {
+//           console.log(66);
+//           let twitterObj = {
+//             superAdminId,
+//             lastScrapedId,
+//           };
+//           const newTwitter = new Twitter(twitterObj);
+//           await newTwitter.save();
+//         }
+//       }
+//     }
+//   }
+// });
 
 const createTicket = async (req, res, next) => {
   try {
@@ -158,8 +161,8 @@ export const getTickets = async (req, res, next) => {
       }
       const defaultTicket = {
         creatorInfo: {
-          name: "Jim Halpert",
-          id: "56741",
+          name: userName,
+          id: userId,
           type: "customer",
           channel: "twitter",
         },
@@ -205,6 +208,9 @@ export const getTickets = async (req, res, next) => {
       ]
       for(let note of newNotes){
         let {description} = note;
+        let date= new Date()
+        let hours = date.getHours()
+        let mins = date.getMinutes()
         const noteObj = {
           ticketId,
           description,
@@ -213,7 +219,7 @@ export const getTickets = async (req, res, next) => {
             name:userName,
             email:userEmail,
           },
-          timestamp:new Date().getTime()
+          timestamp:`${hours}:${mins} ${hours>12?'PM':'AM'}`
         };
         const newNote = new Notes(noteObj);
         const noteResp = await newNote.save();
@@ -384,3 +390,5 @@ export const ticketController = {
   moveTicketToProject,
   createTicket,
 };
+
+

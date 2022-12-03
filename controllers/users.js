@@ -76,7 +76,13 @@ export const getAllUsers = async (req, res, next) => {
       { password: 0, refreshToken: 0, socialNetworkHandle: 0 }
     );
     let newResponse = [...user];
-    user.push();
+    newResponse.map((response)=>{
+      return {
+        ...response,
+        id:response._id,
+        name:response.username
+      }
+    })
     res.status(200).json({ team: newResponse });
   } catch (err) {
     next(err);

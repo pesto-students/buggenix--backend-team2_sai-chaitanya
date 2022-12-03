@@ -4,6 +4,7 @@ import cron from "node-cron";
 import { createError } from "../utils/error.js";
 import { json } from "express";
 import { format } from "date-fns";
+import user from "../models/user.js";
 
 // cron.schedule("* */2 * * *", async () => {
 //   console.log("running a task every minute");
@@ -87,7 +88,7 @@ const createTicket = async (req, res, next) => {
       req.body;
     let ticket = {
       description,
-      superAdminId: userInfo.userSuperAdminId,
+      superAdminId: userInfo.userRole=='superAdmin' ? userInfo.userId : userInfo.userSuperAdminId,
       creatorInfo: {
         id: userInfo.userId,
         name: userInfo.userName,

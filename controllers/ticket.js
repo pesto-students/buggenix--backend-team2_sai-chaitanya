@@ -90,7 +90,7 @@ const createTicket = async (req, res, next) => {
       superAdminId: userInfo.userSuperAdminId,
       creatorInfo: {
         id: userInfo.userId,
-        name: userInfo.username,
+        name: userInfo.userName,
         type: "member",
         channel: null,
       },

@@ -5,7 +5,7 @@ import { createError } from "../utils/error.js";
 import { json } from "express";
 import { format } from "date-fns";
 
-// cron.schedule("* */1 * * *", async () => {
+// cron.schedule("* */2 * * *", async () => {
 //   console.log("running a task every minute");
 //   let users = await User.find({
 //     $and: [
@@ -193,7 +193,7 @@ const updateTicket = async (req, res, next) => {
       else if (type) updateObj["type"] = type;
       else if (priority) updateObj["priority"] = priority;
       else if (projectId) {
-        updateObj['projectId'] = projectId;
+        updateObj['projectId'] = projectId
       } else
         return res.status(400).json({
           message: "Something is missing in body's payload",

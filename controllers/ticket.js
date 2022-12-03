@@ -91,8 +91,8 @@ const createTicket = async (req, res, next) => {
       creatorInfo: {
         id: userInfo.userId,
         name: userInfo.username,
-        type: "team-member",
-        channel: "",
+        type: "member",
+        channel: null,
       },
     };
     if(status) ticket["status"] = status;
@@ -100,10 +100,11 @@ const createTicket = async (req, res, next) => {
     if(type) ticket["type"] = type;
     if(priority) ticket["priority"] = priority;
     if(projectId) ticket["projectId"] = projectId;
-    ticket["conversations"]=[]
     const newTicket = new Ticket(ticket);
     let responseTicket = await newTicket.save();
-    res.status(200).json({...responseTicket._doc,id:responseTicket._doc._id});
+    const createdAt = responseTicket._doc.createdAt;
+    const formattedDate = format(createdAt, "MMM dd, yyyy");
+    res.status(200).json({...responseTicket._doc,id:responseTicket._doc._id,conversations:[],conversationCount:0,timestamp:formattedDate});
   } catch (err) {
     next(err);
   }

@@ -103,7 +103,7 @@ const createTicket = async (req, res, next) => {
     ticket["conversations"]=[]
     const newTicket = new Ticket(ticket);
     let responseTicket = await newTicket.save();
-    res.status(200).json({...responseTicket._doc,id:responseTicket._doc>_id});
+    res.status(200).json({...responseTicket._doc,id:responseTicket._doc._id});
   } catch (err) {
     next(err);
   }

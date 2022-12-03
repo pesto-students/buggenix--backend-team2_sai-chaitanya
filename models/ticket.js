@@ -48,7 +48,14 @@ const TicketSchema = new mongoose.Schema(
         default:null,
         required: false,
     },
-    conversations:[{type:'ObjectId',ref:'Notes'}]
+    conversations:[{type:'ObjectId',ref:'Notes'}],
+    default:{
+      type:Number,
+      default:0
+    },
+    defaultConversations:[{
+      type:Object
+    }]
   },
   { timestamps: true }
 );

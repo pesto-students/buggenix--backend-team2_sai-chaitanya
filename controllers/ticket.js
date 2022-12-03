@@ -219,13 +219,18 @@ export const getTickets = async (req, res, next) => {
         const noteResp = await newNote.save();
         await Ticket.findByIdAndUpdate(ticketId,{$push:{conversations:noteResp._doc._id}});
       }
+      let updatedTickets = await Ticket.findById({
+        ticketId
+      }).populate({
+        path: "conversations",
+      });
       const createdAt = responseTicket._doc.createdAt;
       const formattedDate = format(createdAt, "MMM dd, yyyy");
       let ticketObj = {
-        ...responseTicket._doc,
+        ...updatedTickets._doc,
         id: ticketId,
         timestamp: formattedDate,
-        conversationCount: responseTicket._doc.conversations.length,
+        conversationCount: updatedTickets._doc.conversations.length,
       };
       ticketResponse.push(ticketObj);
     }

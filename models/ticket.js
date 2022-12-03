@@ -45,7 +45,7 @@ const TicketSchema = new mongoose.Schema(
     },
     projectId:{
         type: String,
-        deafult:null,
+        default:null,
         required: false,
     },
     conversations:[{type:'ObjectId',ref:'Notes'}]

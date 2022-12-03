@@ -75,10 +75,11 @@ export const getAllUsers = async (req, res, next) => {
       },
       { password: 0, refreshToken: 0, socialNetworkHandle: 0 }
     );
-    let newResponse = [...user];
-    newResponse.map((response)=>{
+    console.log(user)
+    let newResponse =user;
+    newResponse = newResponse.map((response)=>{
       return {
-        ...response,
+        ...response._doc,
         id:response._id,
         name:response.username
       }

@@ -7,6 +7,8 @@ import { format, getMinutes } from "date-fns";
 import user from "../models/user.js";
 import notes from "../models/notes.js";
 import { getTime } from "date-fns";
+import mongoose from "mongoose";
+
 
 // cron.schedule("* */1 * * *", async () => {
 //   console.log("running a task every minute");

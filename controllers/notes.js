@@ -1,4 +1,6 @@
 import { Notes, Ticket } from "../models/index.js";
+import mongoose from "mongoose";
+
 
 // vyhtjmh985w3
 export const addNote = async (req, res, next) => {
@@ -6,6 +8,9 @@ export const addNote = async (req, res, next) => {
     const { ticketId, description } = req.body;
     const { userInfo } = req;
     const { userId, userName, userEmail } = userInfo;
+    let date = new Date();
+    let hours = date.getHours();
+    let mins = date.getMinutes();
     const noteObj = {
       ticketId,
       description,
@@ -14,20 +19,25 @@ export const addNote = async (req, res, next) => {
         name: userName,
         email: userEmail,
       },
-      timestamp: new Date().getTime(),
+      timestamp: `${hours}:${mins} ${hours > 12 ? "PM" : "AM"}`,
     };
     const newNote = new Notes(noteObj);
     const note = await newNote.save();
-    console.log(note._doc);
-    await Ticket.findByIdAndUpdate(ticketId, {
+    // console.log(note._doc);
+    // console.log(typeof ticketId)
+    const objId = mongoose.Types.ObjectId(ticketId);
+    await Ticket.findByIdAndUpdate(objId, {
       $push: { conversations: note._doc._id },
     });
-    let updatedTickets = await Ticket.findById({
-      ticketId,
-    }).populate({
+    let updatedTickets = await Ticket.findById(
+      objId,
+    ).populate({
       path: "conversations",
     });
-    res.status(200).json({ ...updatedTickets._doc });
+    let conversations = updatedTickets?.conversations
+    conversations.reverse();
+    // console.log(conversations)
+    res.status(200).json(conversations);
   } catch (err) {
     next(err);
   }

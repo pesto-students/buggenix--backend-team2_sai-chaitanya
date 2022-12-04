@@ -374,7 +374,7 @@ const deleteTicket = async (req, res, next) => {
     const { id } = req.params;
     const objId = mongoose.Types.ObjectId(id);
     if (userInfo.userRole == "superAdmin" || userInfo.userRole == "admin") {
-      const ticket = await findByIdAndDelete(objId);
+      const ticket = await Ticket.findByIdAndDelete(objId);
       ticket && res.status(200).json({ message: "Deleted successfully!" });
       !ticket && res.status(404).json({ message: "Ticket not found!" });
     } else {

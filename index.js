@@ -9,7 +9,8 @@ import {
   projectRoute,
   ticketsRoute,
   socialRoute,
-  noteRoute
+  noteRoute,
+  metricRoute
 } from "./routes/index.js";
 import { corsOptions } from "./config/corsOptions.js";
 import { credentials } from "./utils/credentials.js";
@@ -45,8 +46,10 @@ app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/projects", projectRoute);
 app.use("/api/tickets", ticketsRoute);
-app.use('/api/social',socialRoute)
-app.use('/api/notes',noteRoute)
+app.use('/api/social',socialRoute);
+app.use('/api/notes',noteRoute);
+app.use('/api/metrics',metricRoute)
+
 console.log("running")
 
 app.use((err, req, res, next) => {

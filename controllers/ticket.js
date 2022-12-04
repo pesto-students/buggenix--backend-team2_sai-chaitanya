@@ -6,9 +6,7 @@ import { json } from "express";
 import { format, getMinutes } from "date-fns";
 import user from "../models/user.js";
 import notes from "../models/notes.js";
-import { getTime } from 'date-fns'
-
-
+import { getTime } from "date-fns";
 
 // cron.schedule("* */1 * * *", async () => {
 //   console.log("running a task every minute");
@@ -127,7 +125,7 @@ export const getTickets = async (req, res, next) => {
   try {
     // console.log("twitterData",twitterData);
     const { userInfo } = req;
-    let { userRole, userSuperAdminId, userId,userName,userEmail } = userInfo;
+    let { userRole, userSuperAdminId, userId, userName, userEmail } = userInfo;
     let superAdminId = userInfo.userSuperAdminId;
     if (userInfo.userRole == "superAdmin") {
       superAdminId = userInfo.userId;
@@ -152,12 +150,12 @@ export const getTickets = async (req, res, next) => {
       ticketResponse.push(ticketObj);
     }
     if (!ticketResponse.length) {
-      if(userRole!='superAdmin'){
+      if (userRole != "superAdmin") {
         const superAdmin = await User.findById(userSuperAdminId);
-        let { username,email } = superAdmin;
+        let { username, email } = superAdmin;
         userName = username;
         userId = userSuperAdminId;
-        userEmail = email
+        userEmail = email;
       }
       const defaultTicket = {
         creatorInfo: {
@@ -174,11 +172,11 @@ export const getTickets = async (req, res, next) => {
         label: null,
         description: "We would love to see new and improved features",
         projectId: null,
-        default:1
+        default: 1,
       };
       const newTicket = new Ticket(defaultTicket);
       let responseTicket = await newTicket.save();
-      const {_id:ticketId} = responseTicket._doc;
+      const { _id: ticketId } = responseTicket._doc;
       let newNotes = [
         {
           type: "note",
@@ -205,28 +203,30 @@ export const getTickets = async (req, res, next) => {
             id: "3256",
           },
         },
-      ]
-      for(let note of newNotes){
-        let {description} = note;
-        let date= new Date()
-        let hours = date.getHours()
-        let mins = date.getMinutes()
+      ];
+      for (let note of newNotes) {
+        let { description } = note;
+        let date = new Date();
+        let hours = date.getHours();
+        let mins = date.getMinutes();
         const noteObj = {
           ticketId,
           description,
           creatorInfo: {
-            id:userId,
-            name:userName,
-            email:userEmail,
+            id: userId,
+            name: userName,
+            email: userEmail,
           },
-          timestamp:`${hours}:${mins} ${hours>12?'PM':'AM'}`
+          timestamp: `${hours}:${mins} ${hours > 12 ? "PM" : "AM"}`,
         };
         const newNote = new Notes(noteObj);
         const noteResp = await newNote.save();
-        await Ticket.findByIdAndUpdate(ticketId,{$push:{conversations:noteResp._doc._id}});
+        await Ticket.findByIdAndUpdate(ticketId, {
+          $push: { conversations: noteResp._doc._id },
+        });
       }
       let updatedTickets = await Ticket.findById({
-        ticketId
+        ticketId,
       }).populate({
         path: "conversations",
       });
@@ -390,5 +390,3 @@ export const ticketController = {
   moveTicketToProject,
   createTicket,
 };
-
-

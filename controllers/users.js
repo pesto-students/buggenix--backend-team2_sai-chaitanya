@@ -70,20 +70,20 @@ export const getAllUsers = async (req, res, next) => {
           },
           {
             _id: userId,
-          }
+          },
         ],
       },
       { password: 0, refreshToken: 0, socialNetworkHandle: 0 }
     );
-    console.log(user)
-    let newResponse =user;
-    newResponse = newResponse.map((response)=>{
+    console.log(user);
+    let newResponse = user;
+    newResponse = newResponse.map((response) => {
       return {
         ...response._doc,
-        id:response._id,
-        name:response.username
-      }
-    })
+        id: response._id,
+        name: response.username,
+      };
+    });
     res.status(200).json({ team: newResponse });
   } catch (err) {
     next(err);

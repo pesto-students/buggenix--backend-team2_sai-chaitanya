@@ -55,17 +55,15 @@ export const createProject = async (req, res, next) => {
     }
     const createdAt = projectResp._doc.createdAt;
     const formattedDate = format(createdAt, "MMM dd, yyyy");
-    res
-      .status(200)
-      .json({
-        ...projectResp._doc,
-        ticketCount: ticketCount,
-        openTicketCount,
-        members,
-        id: projectResp._doc._id,
-        createdAt: formattedDate,
-        ticketIds:[]
-      });
+    res.status(200).json({
+      ...projectResp._doc,
+      ticketCount: ticketCount,
+      openTicketCount,
+      members,
+      id: projectResp._doc._id,
+      createdAt: formattedDate,
+      ticketIds: [],
+    });
   } catch (err) {
     next(err);
   }
@@ -105,7 +103,7 @@ export const getProjects = async (req, res, next) => {
       };
       const openedTickets = tickets.filter((ticket) => ticket.status == "open");
       let members = tickets.map((ticket) => ticket?.assigneeInfo);
-      members.push(project.creator)
+      members.push(project.creator);
       newProject["ticketCount"] = tickets.length;
       newProject["openTicketCount"] = openedTickets.length;
       newProject["members"] = members;
@@ -113,7 +111,7 @@ export const getProjects = async (req, res, next) => {
       const createdAt = project._doc.createdAt;
       const formattedDate = format(createdAt, "MMM dd, yyyy");
       newProject["createdAt"] = formattedDate;
-      newProject["ticketIds"]=tickets.map((ticket) => ticket._id) || []
+      newProject["ticketIds"] = tickets.map((ticket) => ticket._id) || [];
       console.log(newProject);
       newProjects.push(newProject);
     }

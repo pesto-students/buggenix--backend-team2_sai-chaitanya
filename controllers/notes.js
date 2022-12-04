@@ -1,4 +1,4 @@
-import { Notes,Ticket } from "../models/index.js";
+import { Notes, Ticket } from "../models/index.js";
 
 // vyhtjmh985w3
 export const addNote = async (req, res, next) => {
@@ -10,17 +10,24 @@ export const addNote = async (req, res, next) => {
       ticketId,
       description,
       creatorInfo: {
-        id:userId,
-        name:userName,
-        email:userEmail,
+        id: userId,
+        name: userName,
+        email: userEmail,
       },
-      timestamp:new Date().getTime()
+      timestamp: new Date().getTime(),
     };
     const newNote = new Notes(noteObj);
     const note = await newNote.save();
-    console.log(note._doc)
-    await Ticket.findByIdAndUpdate(ticketId,{$push:{conversations:note._doc._id}});
-    res.status(200).json({  ...note._doc,id:note._doc._id });
+    console.log(note._doc);
+    await Ticket.findByIdAndUpdate(ticketId, {
+      $push: { conversations: note._doc._id },
+    });
+    let updatedTickets = await Ticket.findById({
+      ticketId,
+    }).populate({
+      path: "conversations",
+    });
+    res.status(200).json({ ...updatedTickets._doc });
   } catch (err) {
     next(err);
   }

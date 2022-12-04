@@ -227,9 +227,9 @@ export const getTickets = async (req, res, next) => {
           $push: { conversations: noteResp._doc._id },
         });
       }
-      let updatedTickets = await Ticket.findById({
+      let updatedTickets = await Ticket.findById(
         ticketId,
-      }).populate({
+      ).populate({
         path: "conversations",
       });
       const createdAt = responseTicket._doc.createdAt;

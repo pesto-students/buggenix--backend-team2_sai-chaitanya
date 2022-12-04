@@ -1,7 +1,6 @@
 import { Notes, Ticket } from "../models/index.js";
 import mongoose from "mongoose";
 
-
 // vyhtjmh985w3
 export const addNote = async (req, res, next) => {
   try {
@@ -29,12 +28,10 @@ export const addNote = async (req, res, next) => {
     await Ticket.findByIdAndUpdate(objId, {
       $push: { conversations: note._doc._id },
     });
-    let updatedTickets = await Ticket.findById(
-      objId,
-    ).populate({
+    let updatedTickets = await Ticket.findById(objId).populate({
       path: "conversations",
     });
-    let conversations = updatedTickets?.conversations
+    let conversations = updatedTickets?.conversations;
     conversations.reverse();
     // console.log(conversations)
     res.status(200).json(conversations);

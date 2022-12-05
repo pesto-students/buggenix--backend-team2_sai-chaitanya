@@ -32,18 +32,18 @@ export const inviteNewUser = async (req, res, next) => {
               <h1 style="color:blue;text-align:center; height:40px;">Buggenix</h1> 
               <p style="margin-top: 15px;margin-bottom: 25px;font-family: Inter;font-style: normal;font-weight: 400;font-size: 20px;line-height: 24px;text-align: center;color: #000000;">Invitation from ${userName}: Please join my team at Buggenix</p>
               <div style="background: white;padding:32px;">
-              <p style="margin-top: 7px;margin-bottom: 10px;font-family: Inter;font-style: normal;font-weight: 400;font-size: 20px;line-height: 24px;text-align: center;color: #000000;">Hi!</p>
-              <p style="margin-top:10px;margin-bottom: 20px;font-family: Inter;font-style: normal;font-weight: 400;font-size: 20px;line-height: 24px;text-align: center;color: #000000;">I’m inviting you to join my team at Buggenix.</p>
-              <a style="padding: 8px 16px;border-radius: 4px;background: #023be3;text-decoration: none;font-family: Inter;font-style: normal;font-weight: 500;font-size: 14px;line-height: 146%;text-align: center;display:block;margin:auto;width:125px;color: #f6f7f9;" href="${redirectedUrl}">Please, join my team</a>
-              <p style=" font-family: Inter;font-style: normal;font-size: 16px;line-height: 24px;text-align: center;color: #515b67;">
-              <span style="font-weight: bold;">What is Buggenix?</span><br>
-                Buggenix is a one-stop software tool that scrapes any issues/bugs/feature requests reported by your fellow customers 
-                from any social media/communication channel that you could have your presence in Twitter to your everyday
-              </p>
-              <p style=" font-family: Inter;font-style: normal;font-weight: normal;font-size: 16px;text-align: center;color: #515b67;">
-                Best regards,<br>
-                ${userName}
-              </p>
+                <p style="margin-top: 7px;margin-bottom: 10px;font-family: Inter;font-style: normal;font-weight: 400;font-size: 20px;line-height: 24px;text-align: center;color: #000000;">Hi!</p>
+                <p style="margin-top:10px;margin-bottom: 20px;font-family: Inter;font-style: normal;font-weight: 400;font-size: 20px;line-height: 24px;text-align: center;color: #000000;">I’m inviting you to join my team at Buggenix.</p>
+                <a style="padding: 8px 16px;border-radius: 4px;background: #023be3;text-decoration: none;font-family: Inter;font-style: normal;font-weight: 500;font-size: 14px;line-height: 146%;text-align: center;display:block;margin:auto;width:125px;color: #f6f7f9;" href="${redirectedUrl}">Please, join my team</a>
+                <p style=" font-family: Inter;font-style: normal;font-size: 16px;line-height: 24px;text-align: center;color: #515b67;">
+                <span style="font-weight: bold;">What is Buggenix?</span><br>
+                  Buggenix is a one-stop software tool that scrapes any issues/bugs/feature requests reported by your fellow customers 
+                  from any social media/communication channel that you could have your presence in Twitter to your everyday
+                </p>
+                <p style=" font-family: Inter;font-style: normal;font-weight: normal;font-size: 16px;text-align: center;color: #515b67;">
+                  Best regards,<br>
+                  ${userName}
+                </p>
               </div>
             </div>`,
       };

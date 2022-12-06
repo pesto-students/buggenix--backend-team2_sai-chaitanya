@@ -102,7 +102,11 @@ export const getProjects = async (req, res, next) => {
         ...project._doc,
       };
       const openedTickets = tickets.filter((ticket) => ticket.status == "open");
-      let members = tickets.map((ticket) => ticket && ticket?.assigneeInfo );
+      let members = tickets.map((ticket) => {
+        if(ticket?.assigneeInfo){
+          return ticket.assigneeInfo
+        }
+      });
       members.push(project.creator);
       newProject["ticketCount"] = tickets.length;
       newProject["openTicketCount"] = openedTickets.length;

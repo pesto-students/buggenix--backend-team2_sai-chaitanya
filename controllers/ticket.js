@@ -151,97 +151,97 @@ export const getTickets = async (req, res, next) => {
 
       ticketResponse.push(ticketObj);
     }
-    if (!ticketResponse.length) {
-      if (userRole != "superAdmin") {
-        const superAdmin = await User.findById(userSuperAdminId);
-        let { username, email } = superAdmin;
-        userName = username;
-        userId = userSuperAdminId;
-        userEmail = email;
-      }
-      const defaultTicket = {
-        creatorInfo: {
-          name: userName,
-          id: userId,
-          type: "customer",
-          channel: "twitter",
-        },
-        status: "progress",
-        superAdminId,
-        type: "feature",
-        // conversationCount: "3",
-        assigneeId: null,
-        label: null,
-        description: "We would love to see new and improved features",
-        projectId: null,
-        default: 1,
-      };
-      const newTicket = new Ticket(defaultTicket);
-      let responseTicket = await newTicket.save();
-      const { _id: ticketId } = responseTicket._doc;
-      let newNotes = [
-        {
-          type: "note",
-          description:
-            "Ryan, could you get onto this? Perhaps, you could talk to your manager, get your team acting on it ASAP?",
-        },
-        {
-          type: "note",
-          description:
-            "I will look into it. In the while, it'll be great if we could also focus on the Acme team's issue",
-          timestamp: "20 minutes ago",
-          creatorInfo: {
-            name: "Aditya Vinayak",
-            id: "3256",
-          },
-        },
-        {
-          type: "note",
-          description:
-            "I will look into it. In the while, it'll be great if we could also focus on the Acme team's issue",
-          timestamp: "20 minutes ago",
-          creatorInfo: {
-            name: "Aditya Vinayak",
-            id: "3256",
-          },
-        },
-      ];
-      for (let note of newNotes) {
-        let { description } = note;
-        let date = new Date();
-        let hours = date.getHours();
-        let mins = date.getMinutes();
-        const noteObj = {
-          ticketId,
-          description,
-          creatorInfo: {
-            id: userId,
-            name: userName,
-            email: userEmail,
-          },
-          timestamp: `${hours}:${mins} ${hours > 12 ? "PM" : "AM"}`,
-        };
-        const newNote = new Notes(noteObj);
-        const noteResp = await newNote.save();
-        await Ticket.findByIdAndUpdate(ticketId, {
-          $push: { conversations: noteResp._doc._id },
-        });
-      }
-      let updatedTickets = await Ticket.findById(
-        ticketId,
-      ).populate({
-        path: "conversations",
-      });
-      const createdAt = responseTicket._doc.createdAt;
-      const formattedDate = format(createdAt, "MMM dd, yyyy");
-      let ticketObj = {
-        ...updatedTickets._doc,
-        id: ticketId,
-        timestamp: formattedDate,
-        conversationCount: updatedTickets._doc.conversations.length,
-      };
-      ticketResponse.push(ticketObj);
-    }
+    // if (!ticketResponse.length) {
+    //   if (userRole != "superAdmin") {
+    //     const superAdmin = await User.findById(userSuperAdminId);
+    //     let { username, email } = superAdmin;
+    //     userName = username;
+    //     userId = userSuperAdminId;
+    //     userEmail = email;
+    //   }
+    //   const defaultTicket = {
+    //     creatorInfo: {
+    //       name: userName,
+    //       id: userId,
+    //       type: "customer",
+    //       channel: "twitter",
+    //     },
+    //     status: "progress",
+    //     superAdminId,
+    //     type: "feature",
+    //     // conversationCount: "3",
+    //     assigneeId: null,
+    //     label: null,
+    //     description: "We would love to see new and improved features",
+    //     projectId: null,
+    //     default: 1,
+    //   };
+    //   const newTicket = new Ticket(defaultTicket);
+    //   let responseTicket = await newTicket.save();
+    //   const { _id: ticketId } = responseTicket._doc;
+    //   let newNotes = [
+    //     {
+    //       type: "note",
+    //       description:
+    //         "Ryan, could you get onto this? Perhaps, you could talk to your manager, get your team acting on it ASAP?",
+    //     },
+    //     {
+    //       type: "note",
+    //       description:
+    //         "I will look into it. In the while, it'll be great if we could also focus on the Acme team's issue",
+    //       timestamp: "20 minutes ago",
+    //       creatorInfo: {
+    //         name: "Aditya Vinayak",
+    //         id: "3256",
+    //       },
+    //     },
+    //     {
+    //       type: "note",
+    //       description:
+    //         "I will look into it. In the while, it'll be great if we could also focus on the Acme team's issue",
+    //       timestamp: "20 minutes ago",
+    //       creatorInfo: {
+    //         name: "Aditya Vinayak",
+    //         id: "3256",
+    //       },
+    //     },
+    //   ];
+    //   for (let note of newNotes) {
+    //     let { description } = note;
+    //     let date = new Date();
+    //     let hours = date.getHours();
+    //     let mins = date.getMinutes();
+    //     const noteObj = {
+    //       ticketId,
+    //       description,
+    //       creatorInfo: {
+    //         id: userId,
+    //         name: userName,
+    //         email: userEmail,
+    //       },
+    //       timestamp: `${hours}:${mins} ${hours > 12 ? "PM" : "AM"}`,
+    //     };
+    //     const newNote = new Notes(noteObj);
+    //     const noteResp = await newNote.save();
+    //     await Ticket.findByIdAndUpdate(ticketId, {
+    //       $push: { conversations: noteResp._doc._id },
+    //     });
+    //   }
+    //   let updatedTickets = await Ticket.findById(
+    //     ticketId,
+    //   ).populate({
+    //     path: "conversations",
+    //   });
+    //   const createdAt = responseTicket._doc.createdAt;
+    //   const formattedDate = format(createdAt, "MMM dd, yyyy");
+    //   let ticketObj = {
+    //     ...updatedTickets._doc,
+    //     id: ticketId,
+    //     timestamp: formattedDate,
+    //     conversationCount: updatedTickets._doc.conversations.length,
+    //   };
+    //   ticketResponse.push(ticketObj);
+    // }
     res.status(200).json(ticketResponse);
   } catch (err) {
     console.log(err);

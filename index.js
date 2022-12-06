@@ -1,29 +1,37 @@
 import express, { json } from "express";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import mongoose from "mongoose";
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import {authRoute, usersRoute} from './routes/index.js'
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import {
+  authRoute,
+  usersRoute,
+  projectRoute,
+  ticketsRoute,
+  socialRoute,
+  noteRoute,
+  metricRoute
+} from "./routes/index.js";
 import { corsOptions } from "./config/corsOptions.js";
 import { credentials } from "./utils/credentials.js";
 
-const router  = express.Router();
+const router = express.Router();
 const app = express();
 dotenv.config();
 
 const connect = async () => {
-    try {
-        await mongoose.connect(process.env.MONGO);
-        console.log("mongodb connected!");
-    } catch (error) {
-        throw error;
-    }
+  try {
+    await mongoose.connect(process.env.MONGO);
+    console.log("mongodb connected!");
+  } catch (error) {
+    throw error;
+  }
 };
 
-const port = process.env.PORT || 8800
-app.listen(port,()=>{
-    connect();
-    console.log("connected to backend.");
+const port = process.env.PORT || 8800;
+app.listen(port, () => {
+  connect();
+  console.log("connected to backend.");
 });
 
 // and fetch cookies credentials requirement
@@ -31,21 +39,27 @@ app.use(credentials);
 app.use(cors(corsOptions));
 
 app.use(cookieParser());
-app.use(express.json())
+app.use(express.json());
 
 // routes
-app.use('/api/auth',authRoute);
-app.use('/api/users',usersRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/users", usersRoute);
+app.use("/api/projects", projectRoute);
+app.use("/api/tickets", ticketsRoute);
+app.use('/api/social',socialRoute);
+app.use('/api/notes',noteRoute);
+app.use('/api/metrics',metricRoute)
 
-app.use((err,req,res,next)=>{
-    console.log("errmiddleware",err);
-    const errStatus = err.status || 500;
-    const errMessage = err.message || "Something went wrong!";
-    return res.status(errStatus).json({
-        success:false,
-        status:errStatus,
-        message:errMessage,
-        stack:err.stack
-    });
-})
+console.log("running")
 
+app.use((err, req, res, next) => {
+  console.log("errmiddleware", err);
+  const errStatus = err.status || 500;
+  const errMessage = err.message || "Something went wrong!";
+  return res.status(errStatus).json({
+    success: false,
+    status: errStatus,
+    message: errMessage,
+    stack: err.stack,
+  });
+});

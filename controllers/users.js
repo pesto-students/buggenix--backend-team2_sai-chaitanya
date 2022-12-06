@@ -51,7 +51,7 @@ export const inviteNewUser = async (req, res, next) => {
       let responseUser;
       if (sentMail) {
         let user = {
-          username: "null",
+          username: null,
           email: to,
           password: "pending",
           status: "pending",

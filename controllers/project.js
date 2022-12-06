@@ -101,9 +101,12 @@ export const getProjects = async (req, res, next) => {
         ...project._doc,
       };
       const openedTickets = tickets.filter((ticket) => ticket.status == "open");
-      let members = tickets.map((ticket) => {
-        if(ticket?.assigneeInfo && ticket.assigneeInfo.id!=project.creator.id){
-          return ticket.assigneeInfo
+      let members = tickets.filter((ticket) => {
+        if (
+          ticket?.assigneeInfo &&
+          ticket.assigneeInfo.id != project.creator.id
+        ) {
+          return ticket.assigneeInfo;
         }
       });
       members.push(project.creator);
@@ -114,8 +117,9 @@ export const getProjects = async (req, res, next) => {
       const createdAt = project._doc.createdAt;
       const formattedDate = format(createdAt, "MMM dd, yyyy");
       newProject["createdAt"] = formattedDate;
-
-      newProject["ticketIds"] = tickets.map((ticket) => ticket._id) || [];
+      newProject["ticketIds"] = tickets.map((ticket) => {
+        return ticket._id;
+      });
       console.log(newProject);
       newProjects.push(newProject);
     }

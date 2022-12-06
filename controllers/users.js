@@ -22,7 +22,7 @@ export const inviteNewUser = async (req, res, next) => {
         },
       });
       let sId = userInfo.userId;
-      let redirectedUrl = `https://buggenix.netlify.app/team-invite?email=${to}&invitor=${invitor}`;
+      let redirectedUrl = `https://buggenix.netlify.app/team-invite?email=${to}&invitor=${userName}`;
 
       const mailOptions = {
         from: from,

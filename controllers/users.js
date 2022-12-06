@@ -34,7 +34,7 @@ export const inviteNewUser = async (req, res, next) => {
               <div style="background: white;padding:32px;">
                 <p style="margin-top: 7px;margin-bottom: 10px;font-family: Inter;font-style: normal;font-weight: 400;font-size: 20px;line-height: 24px;text-align: center;color: #000000;">Hi!</p>
                 <p style="margin-top:10px;margin-bottom: 20px;font-family: Inter;font-style: normal;font-weight: 400;font-size: 20px;line-height: 24px;text-align: center;color: #000000;">I’m inviting you to join my team at Buggenix.</p>
-                <a style="padding: 8px 16px;border-radius: 4px;background: #023be3;text-decoration: none;font-family: Inter;font-style: normal;font-weight: 500;font-size: 14px;line-height: 146%;text-align: center;display:block;margin:auto;width:125px;color: #f6f7f9;" href="${redirectedUrl}">Please, join my team</a>
+                <a style="padding: 8px 16px;border-radius: 4px;background: #023be3;text-decoration: none;font-family: Inter;font-style: normal;font-weight: 500;font-size: 14px;line-height: 146%;text-align: center;display:block;margin:auto;width:125px;color: #f6f7f9;" href="${redirectedUrl}"> Join team</a>
                 <p style=" font-family: Inter;font-style: normal;font-size: 16px;line-height: 24px;text-align: center;color: #515b67;">
                 <span style="font-weight: bold;">What is Buggenix?</span><br>
                   Buggenix is a one-stop software tool that scrapes any issues/bugs/feature requests reported by your fellow customers 

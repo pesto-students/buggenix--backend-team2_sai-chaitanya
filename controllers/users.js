@@ -94,7 +94,6 @@ export const getAllUsers = async (req, res, next) => {
       },
       { password: 0, refreshToken: 0, socialNetworkHandle: 0 }
     );
-    console.log(user);
     let newResponse = user;
     newResponse = newResponse.map((response) => {
       return {
@@ -113,7 +112,6 @@ export const deleteUser = async (req, res, next) => {
   try {
     const { userInfo } = req;
     const { id } = req.params;
-    console.log(id);
     const objId = mongoose.Types.ObjectId(id);
     if (userInfo.userRole == "superAdmin") {
       const user = await User.findByIdAndDelete(objId);

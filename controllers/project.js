@@ -78,7 +78,6 @@ export const getProjects = async (req, res, next) => {
     let newProjects = [];
     for (let project of projects) {
       const { _id: id } = project;
-      console.log(id);
       const tickets = await Ticket.find(
         { projectId: id },
         {
@@ -96,7 +95,6 @@ export const getProjects = async (req, res, next) => {
           superAdminId: 0,
         }
       );
-      console.log("tickets", tickets);
       let newProject = {
         ...project._doc,
       };
@@ -120,7 +118,6 @@ export const getProjects = async (req, res, next) => {
       newProject["ticketIds"] = tickets.map((ticket) => {
         return ticket._id;
       });
-      console.log(newProject);
       newProjects.push(newProject);
     }
     res.status(200).json(newProjects);

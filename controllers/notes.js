@@ -22,8 +22,6 @@ export const addNote = async (req, res, next) => {
     };
     const newNote = new Notes(noteObj);
     const note = await newNote.save();
-    // console.log(note._doc);
-    // console.log(typeof ticketId)
     const objId = mongoose.Types.ObjectId(ticketId);
     await Ticket.findByIdAndUpdate(objId, {
       $push: { conversations: note._doc._id },
@@ -33,7 +31,6 @@ export const addNote = async (req, res, next) => {
     });
     let conversations = updatedTickets?.conversations;
     conversations.reverse();
-    // console.log(conversations)
     res.status(200).json(conversations);
   } catch (err) {
     next(err);
@@ -44,7 +41,6 @@ export const getNotes = async (req, res, next) => {
   try {
     const { ticketId } = req.body;
     const notes = await Notes.find({ ticketId });
-    console.log(notes);
     res.status(200).json({ notes: notes });
   } catch (err) {
     next(err);

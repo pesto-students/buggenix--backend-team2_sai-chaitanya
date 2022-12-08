@@ -10,80 +10,67 @@ import { getTime } from "date-fns";
 import mongoose from "mongoose";
 
 
-// cron.schedule("* */1 * * *", async () => {
-//   console.log("running a task every minute");
-//   let users = await User.find({
-//     $and: [
-//       { socialNetworkHandle: { $exists: true } },
-//       { "socialNetworkHandle.0": { $exists: true } },
-//     ],
-//   });
-//   //   console.log("users", users);
-//   for (const user of users) {
-//     console.log("user", user);
-//     let twitterHandle = user.socialNetworkHandle[0].twitter || "";
-//     let superAdminId = user._id;
-//     let twitter = await Twitter.findOne({ superAdminId });
-//     let lastScrapedId = twitter?.lastScrapedId || "";
-//     console.log("lastScrapedId", lastScrapedId, twitterHandle);
-//     if (twitterHandle) {
-//       console.log(22);
-//       let twitterData = await getTicketFromTwitter(
-//         twitterHandle,
-//         lastScrapedId
-//       );
-//       let { status, data, includes, meta } = twitterData;
-//       console.log("twitterData29");
-//       //   break;
-//       if (status != 200 || data.length == 0) continue;
-//       let { newest_id: newestId } = meta;
-//       lastScrapedId = newestId;
-//       console.log("twitterData");
-//       if (data.length) {
-//         // console.log("11",data.length,data,includes)
-//         for (const info of data) {
-//           let { text: description, id: tweetId, created_at, author_id } = info;
-//           // console.log("info",info)
-//           let twitterUser = includes.users.find((user) => user.id == author_id);
-//           // console.log("twitterUser",twitterUser)
-//           let scrapedFrom = "twitter";
-//           let ticket = {
-//             description,
-//             superAdminId,
-//             scrapedFrom,
-//             creatorInfo: {
-//               tweetId,
-//               created_at,
-//               id: author_id,
-//               name: twitterUser.username,
-//               // name: "Harish Balasubramanian",
-//               // id: "56739",
-//               type: "customer",
-//               channel: "twitter",
-//             },
-//           };
-//           // console.log("twitterUser", twitterUser);
+cron.schedule("* */1 * * *", async () => {
+  // console.log("running a task every minute");
+  let users = await User.find({
+    $and: [
+      { socialNetworkHandle: { $exists: true } },
+      { "socialNetworkHandle.0": { $exists: true } },
+    ],
+  });
+  for (const user of users) {
+    let twitterHandle = user.socialNetworkHandle[0].twitter || "";
+    let superAdminId = user._id;
+    let twitter = await Twitter.findOne({ superAdminId });
+    let lastScrapedId = twitter?.lastScrapedId || "";
+    if (twitterHandle) {
+      let twitterData = await getTicketFromTwitter(
+        twitterHandle,
+        lastScrapedId
+      );
+      let { status, data, includes, meta } = twitterData;
+      //   break;
+      if (status != 200 || data.length == 0) continue;
+      let { newest_id: newestId } = meta;
+      lastScrapedId = newestId;
+      if (data.length) {
+        for (const info of data) {
+          let { text: description, id: tweetId, created_at, author_id } = info;
+          let twitterUser = includes.users.find((user) => user.id == author_id);
+          let scrapedFrom = "twitter";
+          let ticket = {
+            description,
+            superAdminId,
+            scrapedFrom,
+            creatorInfo: {
+              tweetId,
+              created_at,
+              id: author_id,
+              name: twitterUser.username,
+              // name: "Harish Balasubramanian",
+              // id: "56739",
+              type: "customer",
+              channel: "twitter",
+            },
+          };
 
-//           const newTicket = new Ticket(ticket);
-//           let responseTicket = await newTicket.save();
-//           // console.log("response", responseTicket);
-//         }
-//         if (twitter && lastScrapedId) {
-//           console.log(63);
-//           await Twitter.findOneAndUpdate({ superAdminId }, { lastScrapedId });
-//         } else if (!twitter && lastScrapedId) {
-//           console.log(66);
-//           let twitterObj = {
-//             superAdminId,
-//             lastScrapedId,
-//           };
-//           const newTwitter = new Twitter(twitterObj);
-//           await newTwitter.save();
-//         }
-//       }
-//     }
-//   }
-// });
+          const newTicket = new Ticket(ticket);
+          let responseTicket = await newTicket.save();
+        }
+        if (twitter && lastScrapedId) {
+          await Twitter.findOneAndUpdate({ superAdminId }, { lastScrapedId });
+        } else if (!twitter && lastScrapedId) {
+          let twitterObj = {
+            superAdminId,
+            lastScrapedId,
+          };
+          const newTwitter = new Twitter(twitterObj);
+          await newTwitter.save();
+        }
+      }
+    }
+  }
+});
 
 const createTicket = async (req, res, next) => {
   try {
@@ -125,7 +112,6 @@ const createTicket = async (req, res, next) => {
 };
 export const getTickets = async (req, res, next) => {
   try {
-    // console.log("twitterData",twitterData);
     const { userInfo } = req;
     let { userRole, userSuperAdminId, userId, userName, userEmail } = userInfo;
     let superAdminId = userInfo.userSuperAdminId;
@@ -151,97 +137,6 @@ export const getTickets = async (req, res, next) => {
 
       ticketResponse.push(ticketObj);
     }
-    // if (!ticketResponse.length) {
-    //   if (userRole != "superAdmin") {
-    //     const superAdmin = await User.findById(userSuperAdminId);
-    //     let { username, email } = superAdmin;
-    //     userName = username;
-    //     userId = userSuperAdminId;
-    //     userEmail = email;
-    //   }
-    //   const defaultTicket = {
-    //     creatorInfo: {
-    //       name: userName,
-    //       id: userId,
-    //       type: "customer",
-    //       channel: "twitter",
-    //     },
-    //     status: "progress",
-    //     superAdminId,
-    //     type: "feature",
-    //     // conversationCount: "3",
-    //     assigneeId: null,
-    //     label: null,
-    //     description: "We would love to see new and improved features",
-    //     projectId: null,
-    //     default: 1,
-    //   };
-    //   const newTicket = new Ticket(defaultTicket);
-    //   let responseTicket = await newTicket.save();
-    //   const { _id: ticketId } = responseTicket._doc;
-    //   let newNotes = [
-    //     {
-    //       type: "note",
-    //       description:
-    //         "Ryan, could you get onto this? Perhaps, you could talk to your manager, get your team acting on it ASAP?",
-    //     },
-    //     {
-    //       type: "note",
-    //       description:
-    //         "I will look into it. In the while, it'll be great if we could also focus on the Acme team's issue",
-    //       timestamp: "20 minutes ago",
-    //       creatorInfo: {
-    //         name: "Aditya Vinayak",
-    //         id: "3256",
-    //       },
-    //     },
-    //     {
-    //       type: "note",
-    //       description:
-    //         "I will look into it. In the while, it'll be great if we could also focus on the Acme team's issue",
-    //       timestamp: "20 minutes ago",
-    //       creatorInfo: {
-    //         name: "Aditya Vinayak",
-    //         id: "3256",
-    //       },
-    //     },
-    //   ];
-    //   for (let note of newNotes) {
-    //     let { description } = note;
-    //     let date = new Date();
-    //     let hours = date.getHours();
-    //     let mins = date.getMinutes();
-    //     const noteObj = {
-    //       ticketId,
-    //       description,
-    //       creatorInfo: {
-    //         id: userId,
-    //         name: userName,
-    //         email: userEmail,
-    //       },
-    //       timestamp: `${hours}:${mins} ${hours > 12 ? "PM" : "AM"}`,
-    //     };
-    //     const newNote = new Notes(noteObj);
-    //     const noteResp = await newNote.save();
-    //     await Ticket.findByIdAndUpdate(ticketId, {
-    //       $push: { conversations: noteResp._doc._id },
-    //     });
-    //   }
-    //   let updatedTickets = await Ticket.findById(
-    //     ticketId,
-    //   ).populate({
-    //     path: "conversations",
-    //   });
-    //   const createdAt = responseTicket._doc.createdAt;
-    //   const formattedDate = format(createdAt, "MMM dd, yyyy");
-    //   let ticketObj = {
-    //     ...updatedTickets._doc,
-    //     id: ticketId,
-    //     timestamp: formattedDate,
-    //     conversationCount: updatedTickets._doc.conversations.length,
-    //   };
-    //   ticketResponse.push(ticketObj);
-    // }
     res.status(200).json(ticketResponse);
   } catch (err) {
     console.log(err);
@@ -250,8 +145,6 @@ export const getTickets = async (req, res, next) => {
 };
 
 const getTicketFromTwitter = async (twitterHandle, sinceId = "") => {
-  // AdnanSamiLive
-  console.log(103);
   let url = `https://api.twitter.com/2/tweets/search/recent?query=to:${twitterHandle}&user.fields=username&expansions=author_id`;
   if (sinceId) {
     url += `&since_id=${sinceId}`;
@@ -260,18 +153,13 @@ const getTicketFromTwitter = async (twitterHandle, sinceId = "") => {
     method: "get",
     url: url,
     headers: {
-      Authorization:
-        "Bearer AAAAAAAAAAAAAAAAAAAAAEKyigEAAAAA5UVSJKFCe6yyAPIfRvLpfYaNCBA%3DQfKwnAioKvewjalvbFkHoxuBLA35c7AdeVVn6lUiVNdRzhJeL8",
+      Authorization:process.env.TWITTER_TOKEN,
     },
   };
-  console.log(116);
   try {
     let response = await axios(config);
-    console.log(111, response.data.meta, response.status);
     if (response.status == 200) {
-      console.log(123);
       if (response.data.meta.result_count) {
-        console.log(47);
         return { status: response.status, ...response.data };
       }
       let returnObj = {
@@ -281,15 +169,12 @@ const getTicketFromTwitter = async (twitterHandle, sinceId = "") => {
       };
       return returnObj;
     } else {
-      console.log(112);
       let returnObj = {
         status: response.status,
       };
       return returnObj;
     }
   } catch (err) {
-    console.log(err.response.data.errors[0].parameters);
-    console.log(112);
 
     let returnObj = {
       status: err.response.status,
@@ -303,7 +188,6 @@ const updateTicket = async (req, res, next) => {
     const { userInfo } = req;
     const { ticketId, status, assigneeId, type, priority, projectId } =
       req.body;
-    console.log(req.body);
     if (userInfo.userRole == "superAdmin" || userInfo.userRole == "admin") {
       if (!ticketId)
         return res
@@ -333,7 +217,6 @@ const updateTicket = async (req, res, next) => {
         return res.status(400).json({
           message: "Something is missing in body's payload",
         });
-      console.log(updateObj);
       const ticketResp = await Ticket.findByIdAndUpdate(ticketId, updateObj);
       if (ticketResp)
         return res.status(200).json({ message: "Updated successfully!" });

@@ -1,3 +1,5 @@
+<img  src = "https://user-images.githubusercontent.com/107745298/212312452-6e8df5ef-1f7f-4ebe-8a55-11912eba4fae.png" height = "80" width="80" />
+
 # Buggenix
 
 Buggenix is a one-stop software tool that scrapes any issues/bugs/feature requests reported by your fellow customers from any social media/communication channel that you could have your presence in, ranging from LinkedIn, Twitter, Facebook, email, Instagram to your everyday. Our proprietary algorithm efficiently separates the wheat from the chaff, meaning, it efficiently filters out grievances and bugs from neutral, everyday messages/tweets that you might receive on your socials, effectively helping you stay on top of customer grievances, getting your developers working on it ASAP and keeping your product's UX the best that it can be!

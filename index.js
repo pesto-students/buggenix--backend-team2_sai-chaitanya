@@ -28,11 +28,11 @@ const connect = async () => {
   }
 };
 
-// const port = process.env.PORT || 8800;
-const port = 8800;
+const port = process.env.PORT || 8800;
+// const port = 8800;
 connect()
     .then(() => {
-        app.listen(port, console.log(`listening on port :${port}`));
+        app.listen(port, '0.0.0.0', console.log(`listening on port :${port}`));
     }).catch((e) => {
         console.log(e);
     })
